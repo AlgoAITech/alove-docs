@@ -59,7 +59,9 @@ After a new introduction is persisted and reaches a “raw suggestion” state (
 - **Method**: POST
 - **Timeout**: 120 seconds
 - **Private**: true (API key)
-- **Environment**: `OPENAI_API_KEY` (SSM), optional `MATCH_ADVISOR_OPENAI_MODEL` (default `gpt-4o-mini`), `MATCH_ADVISOR_LANG` (default `en`)
+- **Environment**: `OPENAI_API_KEY` (SSM)
+- **Settings (per brand)**: `defaultLanguage` for translation `language_id` when resolving labels; `matchAdvisorOpenAIModel` for the OpenAI model (if unset, falls back to `aiModel`, then `gpt-4o-mini`)
+- **System prompt**: `introductions-service/src/data/matchAdvisor.system.prompt.txt` (bundled into the lambda via webpack `asset/source`)
 
 **Database**: apply migration `alove-docs/db-schema/migrations/add_llm_match_advisor_to_introductions.sql`.
 
