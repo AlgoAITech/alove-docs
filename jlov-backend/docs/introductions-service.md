@@ -50,6 +50,19 @@ The Introductions Service manages the core matchmaking functionality of the JLOV
   - `401` - Unauthorized
   - `500` - Server error
 
+After a new introduction is persisted and reaches a “raw suggestion” state (`RAW`, `PENDING`, or `AVAILABILITY_CHECK` after `publishNewIntro`), the service **asynchronously** invokes the private `computeMatchAdvisor` endpoint via the user-events queue (`TechnicalEvent.LAMBDA_CALL`), so the HTTP path to suggestions returns without waiting for OpenAI.
+
+#### computeMatchAdvisor
+**Purpose**: Builds a translated snapshot of both profiles (labels + values via `translations`), loads decline-reason questionnaire answers for both sides (batch content IDs from setting `declineReasonQuestions`, same comma-separated list as backoffice `DeclineReasonQuestions`), includes introduction status history, calls OpenAI, and saves the result on `introductions.llm_match_advisor` (JSONB).
+- **Handler**: `src/functions/private/computeMatchAdvisor.computeMatchAdvisorHandler`
+- **Path**: `/private/introductions/{introductionId}/match-advisor`
+- **Method**: POST
+- **Timeout**: 120 seconds
+- **Private**: true (API key)
+- **Environment**: `OPENAI_API_KEY` (SSM), optional `MATCH_ADVISOR_OPENAI_MODEL` (default `gpt-4o-mini`), `MATCH_ADVISOR_LANG` (default `en`)
+
+**Database**: apply migration `alove-docs/db-schema/migrations/add_llm_match_advisor_to_introductions.sql`.
+
 #### findIncomingSuggestions
 **Purpose**: Retrieves incoming match suggestions for a user
 - **Handler**: `src/functions/findIncomingSuggestions.findIncomingSuggestionsHandler`
