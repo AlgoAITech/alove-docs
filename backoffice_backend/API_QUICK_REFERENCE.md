@@ -47,6 +47,7 @@
 | GET | `/api/customer-support/tickets` | AuthGuard + RolesGuard | Get tickets |
 | POST | `/api/customer-support/tickets` | AuthGuard + RolesGuard | Create ticket |
 | PUT | `/api/customer-support/tickets/:id` | AuthGuard + RolesGuard | Update ticket |
+| POST | `/api/customerSupport/:id/cursor-agent` | RolesGuard + Access(CustomerSupportTicketView, Edit) | Launch Cursor cloud agent using latest `developerInstructions` from request body or saved ticket extra |
 | GET | `/api/customer-support/reports` | AuthGuard + RolesGuard | Get reports |
 
 ## Settings
