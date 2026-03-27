@@ -235,6 +235,37 @@ The Lora Service provides AI-powered conversation and questionnaire functionalit
   - `401` - Unauthorized
   - `500` - Server error
 
+#### transcribeAudioFromUrl (user)
+**Purpose**: Transcribes audio for the signed-in user (e.g. Lora chat text questions with voice input)
+- **Handler**: `src/functions/transcribeAudioFromUrl.transcribeAudioFromUrlUserHandler`
+- **Path**: `/transcribeAudioFromUrl`
+- **Method**: POST
+- **Timeout**: 120 seconds
+- **CORS**: true
+- **Authentication**: Required (Cognito User Pools)
+- **Parameters** (JSON body):
+  - `audioUrl` (required) - HTTPS URL to the audio file, or a `data:` URL with base64 audio
+  - `caller` (optional) - Short label for logging and default prompt tuning (e.g. `lora_chat_text_question`)
+  - `instructions` (optional) - Extra transcription instructions for this caller
+  - `questionText` (optional) - Question being answered; included in the prompt for context
+- **Behavior**: Requires brand setting `voiceTranscription` app feature. Uses OpenAI speech-to-text; model from setting `audioTranscribeModel` or `whisper-1` if unset. Builds a prompt from caller, optional instructions, default accuracy instructions, and optional question text.
+- **Returns**:
+  - `200` - `{ "text": "...", "summary": "" }`
+  - `400` - Missing or invalid `audioUrl`
+  - `403` - Voice transcription disabled for brand
+  - `401` - Unauthorized
+  - `502` - Transcription provider error
+
+#### transcribeAudioFromUrl (private / API key)
+**Purpose**: Same transcription for server-to-server callers (e.g. backoffice) with explicit brand
+- **Handler**: `src/functions/transcribeAudioFromUrl.transcribeAudioFromUrlPrivateHandler`
+- **Path**: `/private/transcribeAudioFromUrl`
+- **Method**: POST
+- **Timeout**: 120 seconds
+- **CORS**: true
+- **Private**: true (API Gateway API key)
+- **Parameters** (JSON body): Same as user endpoint, plus `brandId` (required, number)
+
 ## Environment Variables
 
 The service uses the following environment variables:
