@@ -398,6 +398,11 @@ Resume icon component.
 - Predictive analytics
 - Machine learning integration
 
+### 9. Feature-Gated Match Advisor Insights
+- The introduction details screen supports a feature flag for Match Advisor insights.
+- Feature key: `matchAdvisorInsights` (under `app_features` / `bo` settings, consumed via `useSettings().hasFeature(...)`).
+- When disabled for a brand, the **Match Advisor** section and its side-nav anchor are hidden in Backoffice.
+
 ## Development Guidelines
 
 ### Component Development
