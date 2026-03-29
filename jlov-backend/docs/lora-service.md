@@ -235,6 +235,20 @@ The Lora Service provides AI-powered conversation and questionnaire functionalit
   - `401` - Unauthorized
   - `500` - Server error
 
+**Agent settings integration**:
+- Before calling `agent/inference`, the lambda resolves `general_codes` entry:
+  - `type = "agent"`
+  - `name = "lora-inference"`
+  - `brand_id = current user brand` (fallback to `brand_id = 0`)
+  - `is_active = true`
+- Supported `extra` fields:
+  - `model`
+  - `prompt`
+  - `tokens`
+  - `temperature`
+  - `apiKey` (stored encrypted, decrypted only at runtime)
+- If agent row/field is missing, behavior falls back to legacy defaults (e.g. `SettingName.aiModel`).
+
 #### transcribeAudioFromUrl (user)
 **Purpose**: Transcribes audio for the signed-in user (e.g. Lora chat text questions with voice input)
 - **Handler**: `src/functions/transcribeAudioFromUrl.transcribeAudioFromUrlUserHandler`
