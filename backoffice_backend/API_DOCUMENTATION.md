@@ -237,7 +237,8 @@ Use `general_codes.name` as a unique key and store settings in `general_codes.ex
   "prompt": "You are a SQL generator ...",
   "model": "gpt-4.1-mini",
   "tokens": 2000,
-  "temperature": 0.1
+  "temperature": 0.1,
+  "apiKey": "sk-..."
 }
 ```
 
@@ -251,7 +252,12 @@ Resolution order:
 2. Source-level base agent (`reports-system-main-db` / `reports-system-bigquery`)
 3. Legacy file prompts (`src/prompts/reports/*.txt`) as fallback
 
-Model/tokens/temperature are read from `extra` (type-level overrides base-level values).
+Model/tokens/temperature/apiKey are read from `extra` (type-level overrides base-level values).
+
+`apiKey` handling:
+- On create/update via backoffice API, `extra.apiKey` is encrypted before being stored.
+- On read, API returns a masked representation (`first 10 chars + "***"`), never the full key.
+- Backend runtime decrypts the key only when making LLM calls.
 
 #### POST `/api/general-codes/auto-update-profile/trigger`
 **Purpose**: Manually trigger the daily Auto Update Profile lambda job

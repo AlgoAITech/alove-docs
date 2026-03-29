@@ -315,6 +315,19 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
   - `404` - Image not found
   - `500` - Server error
 
+**LLM settings source**:
+- The moderation LLM config is resolved from `general_codes` with:
+  - `type = "agent"`
+  - `name = "image-moderation"`
+- Supported `extra` fields:
+  - `prompt`
+  - `model`
+  - `tokens`
+  - `temperature`
+  - `apiKey` (stored encrypted as `enc:v1:...` in DB, decrypted only at runtime)
+- Fallback behavior:
+  - If no DB row/field exists, handler falls back to legacy defaults (`moderatorPrompt`, `gpt-5-mini`, env `OPENAI_API_KEY`).
+
 #### updateProfileAttribute
 **Purpose**: Updates a specific profile attribute (administrative function)
 - **Handler**: `src/functions/private/updateProfileAttribute.handler`
