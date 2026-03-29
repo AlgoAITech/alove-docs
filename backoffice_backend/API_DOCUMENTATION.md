@@ -478,6 +478,27 @@ The application uses a **brand-based multi-tenant architecture**:
 **Authentication**: AuthGuard + RolesGuard
 **Body**: Report generation parameters
 
+### Reports Management Endpoints
+
+#### POST `/api/reports-management/generate-raw-query`
+**Purpose**: Generate raw SQL query from a natural-language prompt
+**Authentication**: RolesGuard + Access(10.1)
+**Body**:
+```json
+{
+  "prompt": "string",
+  "reportType": "pie | list | bars | time | ticket | ticketDelta | custom",
+  "source": "main_db | big_query",
+  "reportId": "number (optional)"
+}
+```
+**Behavior**:
+- Always returns generated SQL (`rawQuery`) in the response.
+- When `reportId` is provided and exists, the endpoint also persists:
+  - `config.rawQuery` (generated SQL)
+  - `config.rawQueryPrompt` (the user prompt used to generate SQL)
+  This supports backoffice prompt prefill on subsequent report page loads.
+
 ### AI Simulation Endpoints
 
 #### GET `/api/ai-simulations`
