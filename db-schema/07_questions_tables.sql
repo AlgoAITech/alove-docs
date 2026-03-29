@@ -61,8 +61,11 @@ CREATE TABLE public.predictors_relations (
     level1 character varying NOT NULL,
     predictor2 character varying NOT NULL,
     level2 character varying NOT NULL,
-    grade smallint DEFAULT 0 NOT NULL
+    grade smallint DEFAULT 0 NOT NULL,
+    relation_group character varying(255)
 );
+
+COMMENT ON COLUMN public.predictors_relations.relation_group IS 'Optional label to group multiple predictor relations; exposed as "group" in API JSON.';
 
 COMMENT ON COLUMN public.predictors_relations.level1 IS 'Low
 Mid
