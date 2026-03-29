@@ -46,6 +46,7 @@ CREATE TABLE public.bo_customer_support_tickets (
     last_update timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     profile_id character varying,
     screenshot character varying,
+    title character varying,
     content character varying,
     reportee character varying,
     sub_topic smallint,
