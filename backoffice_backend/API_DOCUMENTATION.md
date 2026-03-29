@@ -220,6 +220,30 @@ The application uses a **brand-based multi-tenant architecture**:
 **Parameters**:
 - `id`: Content ID
 
+#### GET `/api/general-codes`
+**Purpose**: Get general codes by type
+**Authentication**: RolesGuard + Access(GeneralCodesSettings)
+**Query Parameters**:
+- `type`: General code type (optional; supports comma-separated values)
+- `lang`: Language code for translated code names (optional)
+
+#### POST `/api/general-codes/auto-update-profile/trigger`
+**Purpose**: Manually trigger the daily Auto Update Profile lambda job
+**Authentication**: RolesGuard + Access(GeneralCodesSettings, Edit)
+**Body**: None
+**Response**:
+```json
+{
+  "success": true,
+  "functionName": "profile-service-<stage>-processAutoUpdateProfile",
+  "statusCode": 202,
+  "requestId": "aws-request-id"
+}
+```
+**Notes**:
+- This is an async invoke (`InvocationType: Event`) and returns after queueing.
+- Function name can be overridden by `AUTO_UPDATE_PROFILE_FUNCTION_NAME` or `PROFILE_SERVICE_AUTO_UPDATE_PROFILE_FUNCTION_NAME`.
+
 ### Screen Management Endpoints
 
 #### GET `/api/screens`

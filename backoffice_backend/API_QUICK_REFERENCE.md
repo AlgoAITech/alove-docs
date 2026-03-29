@@ -24,6 +24,7 @@
 | POST | `/api/contents` | AuthGuard + RolesGuard | Create content |
 | PUT | `/api/contents/:id` | AuthGuard + RolesGuard | Update content |
 | DELETE | `/api/contents/:id` | AuthGuard + RolesGuard | Delete content |
+| POST | `/api/general-codes/auto-update-profile/trigger` | RolesGuard + Access(GeneralCodesSettings, Edit) | Manually trigger the daily auto-update-profile lambda |
 
 ## Screen Management
 | Method | Endpoint | Auth | Description |
