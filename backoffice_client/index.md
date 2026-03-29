@@ -133,6 +133,7 @@ The application uses a hierarchical routing structure with role-based access con
 - **Brand Settings** (`/brandSettings/:id`) - Brand-specific configurations
 - **Admin Settings** (`/settings/*`) - System-wide settings
 - **General Codes** (`/general-codes`) - System codes management
+- **Agent Prompt Settings** (`/general-codes?type=agent`) - Centralized LLM prompt/model/tokens configuration via `general_codes.extra`
 - **Auto Update Profile Codes** (`/auto-update-profile-codes`) - Manage daily profile auto-update rules and manually trigger the daily lambda
 - **Profile Images** (`/settings/profile-images`) - Image asset management
 

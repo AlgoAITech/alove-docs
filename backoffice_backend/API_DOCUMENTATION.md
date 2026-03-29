@@ -227,6 +227,32 @@ The application uses a **brand-based multi-tenant architecture**:
 - `type`: General code type (optional; supports comma-separated values)
 - `lang`: Language code for translated code names (optional)
 
+#### General Code type `agent` (LLM prompt management)
+The backend supports a dedicated `general_codes.type = "agent"` for LLM configuration.
+
+Use `general_codes.name` as a unique key and store settings in `general_codes.extra`:
+
+```json
+{
+  "prompt": "You are a SQL generator ...",
+  "model": "gpt-4.1-mini",
+  "tokens": 2000,
+  "temperature": 0.1
+}
+```
+
+Current keys used by reports query generation:
+- `reports-system-main-db` (base prompt/settings for Main DB reports)
+- `reports-system-bigquery` (base prompt/settings for BigQuery reports)
+- `reports-type-<reportType>` (optional type-specific override, e.g. `reports-type-user-growth`)
+
+Resolution order:
+1. Type-level agent (`reports-type-<reportType>`)
+2. Source-level base agent (`reports-system-main-db` / `reports-system-bigquery`)
+3. Legacy file prompts (`src/prompts/reports/*.txt`) as fallback
+
+Model/tokens/temperature are read from `extra` (type-level overrides base-level values).
+
 #### POST `/api/general-codes/auto-update-profile/trigger`
 **Purpose**: Manually trigger the daily Auto Update Profile lambda job
 **Authentication**: RolesGuard + Access(GeneralCodesSettings, Edit)
