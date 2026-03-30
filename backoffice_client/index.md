@@ -128,6 +128,7 @@ The application uses a hierarchical routing structure with role-based access con
 - **Communications Report** (`/reports/communications`) - Communication metrics
 - **Interactions Report** (`/reports/interactions`) - User interaction data
 - **Customer Support Report** (`/reports/customerSupport`) - Support metrics
+- **Dynamic reports visibility** - Inactive dynamic reports (`isActive = false`) are filtered out and are not shown in menu/navigation.
 
 ### 8. Settings & Configuration
 - **Brand Settings** (`/brandSettings/:id`) - Brand-specific configurations
