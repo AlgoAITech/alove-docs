@@ -354,6 +354,7 @@ rps zuugprod
 - **Hosting**: AWS Amplify hosting
 - **CDN**: CloudFront for global distribution
 - **SSL**: Automated SSL certificate management
+- **CI Env Injection**: Web runtime `.env` payload is passed to Flutter with `--dart-define=ENV_BASE64=...` and read using `String.fromEnvironment` in `lib/di/service_locator.dart` (avoids mutating Dart source during Amplify builds)
 
 ### Environment Management
 - **Configuration**: Environment-specific settings
