@@ -59,7 +59,14 @@ After a new introduction is persisted and reaches a “raw suggestion” state (
 - **Method**: POST
 - **Timeout**: 120 seconds
 - **Private**: true (API key)
-- **Environment**: `OPENAI_API_KEY` (SSM), optional `MATCH_ADVISOR_OPENAI_MODEL` (default `gpt-4o-mini`), `MATCH_ADVISOR_LANG` (default `en`)
+- **Agent settings (DB)**: resolves `general_codes.type = "agent"` and `name = "match-advisor"` per brand (fallback brand `0`) for `prompt`, `model`, `tokens`, `temperature`, and optional encrypted `apiKey`.
+- **Fallbacks**:
+  - prompt: `src/data/matchAdvisor.system.prompt.txt`
+  - model: `SettingName.matchAdvisorOpenAIModel` -> `SettingName.aiModel` -> `gpt-4o-mini`
+  - apiKey: `OPENAI_API_KEY` env when no agent `apiKey` exists
+- **Secrets**:
+  - `general_codes.extra.apiKey` is expected encrypted at rest (`enc:v1:...`) and decrypted only at runtime.
+  - decryption key source: `GENERAL_CODES_ENCRYPTION_KEY` (preferred) or `JWT_SECRET_KEY` fallback.
 
 **Database**: apply migration `alove-docs/db-schema/migrations/add_llm_match_advisor_to_introductions.sql`.
 
