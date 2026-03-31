@@ -59,7 +59,7 @@ When `pendingIntroductionsMode = "noTolerance"`, suggestions are routed to `PEND
 After a new introduction is persisted and reaches a “raw suggestion” state (`RAW`, `PENDING`, or `AVAILABILITY_CHECK` after `publishNewIntro`), the service **asynchronously** invokes the private `computeMatchAdvisor` endpoint via the user-events queue (`TechnicalEvent.LAMBDA_CALL`), so the HTTP path to suggestions returns without waiting for OpenAI.
 
 #### computeMatchAdvisor
-**Purpose**: Builds a translated snapshot of both profiles (labels + values via `translations`), loads decline-reason questionnaire answers for both sides (batch content IDs from setting `declineReasonQuestions`, same comma-separated list as backoffice `DeclineReasonQuestions`), includes introduction status history, calls OpenAI, and saves the result on `introductions.llm_match_advisor` (JSONB).
+**Purpose**: Builds a translated snapshot of both profiles (labels + values via `translations`), loads decline-reason questionnaire answers for both sides (batch content IDs from setting `declineReasonQuestions`, same comma-separated list as backoffice `DeclineReasonQuestions`), includes introduction status history, includes prior introductions `statusReason` details for this pair, resolves `unmatchReason` IDs via `general_codes` (`type = unmatchReason`), calls OpenAI, and saves the result on `introductions.llm_match_advisor` (JSONB).
 - **Handler**: `src/functions/private/computeMatchAdvisor.computeMatchAdvisorHandler`
 - **Path**: `/private/introductions/{introductionId}/match-advisor`
 - **Method**: POST
@@ -70,6 +70,9 @@ After a new introduction is persisted and reaches a “raw suggestion” state (
   - prompt: `src/data/matchAdvisor.system.prompt.txt`
   - model: `SettingName.matchAdvisorOpenAIModel` -> `SettingName.aiModel` -> `gpt-4o-mini`
   - apiKey: `OPENAI_API_KEY` env when no agent `apiKey` exists
+- **Context payload additions**:
+  - `unmatchReasonGeneralCodes`: active unmatch reason code list for brand (`brandId` + fallback `0`) with id/name metadata.
+  - `priorIntroductionsStatusReason`: up to 20 previous introductions between the same pair (excluding current), including `statusReason` and `unmatchReasonCodes` enriched with resolved code names.
 - **Secrets**:
   - `general_codes.extra.apiKey` is expected encrypted at rest (`enc:v1:...`) and decrypted only at runtime.
   - decryption key source: `GENERAL_CODES_ENCRYPTION_KEY` (preferred) or `JWT_SECRET_KEY` fallback.
