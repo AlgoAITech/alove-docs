@@ -50,6 +50,12 @@ The Introductions Service manages the core matchmaking functionality of the JLOV
   - `401` - Unauthorized
   - `500` - Server error
 
+When `pendingIntroductionsMode = "noTolerance"`, suggestions are routed to `PENDING` only if:
+- `AnyDeclined3516` is true for either side, or
+- the matching-service response contains `tolerance_used` entries and at least one of those attributes has `profile_attributes.settings.pendingOnTolerance = true` for the brand.
+
+`tolerance_used` is an array of attribute names (for example `["agePref", "heightPref"]`) indicating exactly which attributes required tolerance during scoring.
+
 After a new introduction is persisted and reaches a “raw suggestion” state (`RAW`, `PENDING`, or `AVAILABILITY_CHECK` after `publishNewIntro`), the service **asynchronously** invokes the private `computeMatchAdvisor` endpoint via the user-events queue (`TechnicalEvent.LAMBDA_CALL`), so the HTTP path to suggestions returns without waiting for OpenAI.
 
 #### computeMatchAdvisor
