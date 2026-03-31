@@ -42,7 +42,7 @@
 | PUT | `/api/comms/:id` | AuthGuard + RolesGuard | Update communication |
 | DELETE | `/api/comms/:id` | AuthGuard + RolesGuard | Delete communication |
 | POST | `/api/comms/:id/send` | RolesGuard + Access(ViewCommunication, Edit) | Send now or schedule one-time communication |
-| POST | `/api/comms/:id/send/profiles` | RolesGuard + Access(ViewCommunication, Edit) | Queue one-time communication for specific profile IDs (optional delay) |
+| POST | `/api/comms/:id/send/profiles` | RolesGuard + Access(ViewCommunication, Edit) | Queue one-time communication for specific profile IDs (optional delay); applies OneTime profile-status filter from comm param when configured |
 
 ## Customer Support
 | Method | Endpoint | Auth | Description |
