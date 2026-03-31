@@ -91,18 +91,22 @@ Returns matching profile suggestions for a user.
     "id": "uuid",
     "partner_profile_id": "partner-id",
     "matching_score_to_user_pref": 68.26,
-    "matching_score_to_partner_pref": 68.57
+    "matching_score_to_partner_pref": 68.57,
+    "tolerance_used": ["agePref", "heightPref"]
   },
   "outgoings": [
     {
       "id": "uuid",
       "partner_profile_id": "partner-id",
       "matching_score_to_user_pref": 57.80,
-      "matching_score_to_partner_pref": 68.57
+      "matching_score_to_partner_pref": 68.57,
+      "tolerance_used": []
     }
   ]
 }
 ```
+
+`tolerance_used` is an array of profile attribute names for which tolerance was applied during scoring (instead of a single boolean flag).
 
 **Status Codes**:
 - `200`: Success with suggestions
