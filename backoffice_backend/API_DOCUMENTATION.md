@@ -276,7 +276,7 @@ Translation supports the same `extra` shape:
 
 `apiKey` handling:
 - On create/update via backoffice API, `extra.apiKey` is encrypted before being stored.
-- On read, API returns a masked representation (`first 10 chars + "***"`), never the full key.
+- On read, API returns a masked representation (`"***" + last 4 chars`), never the full key.
 - Backend runtime decrypts the key only when making LLM calls.
 
 #### POST `/api/general-codes/auto-update-profile/trigger`
