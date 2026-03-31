@@ -68,6 +68,10 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
   - `401` - Unauthorized
   - `404` - Profile not found
   - `500` - Server error
+- **Sensitive attributes tokenization**:
+  - When `SENSITIVE_ATTR_SEARCH_SECRET` is configured, sensitive attribute search tokens are computed from the original submitted values.
+  - Masked storage values like `["hidden"]` are never used as the token source.
+  - This keeps backoffice free-text sensitive search accurate after profile updates and questionnaire response saves.
 
 ### Photo Management Functions
 
