@@ -405,6 +405,7 @@ Resume icon component.
 - The introduction details screen supports a feature flag for Match Advisor insights.
 - Feature key: `matchAdvisorInsights` (under `app_features` / `bo` settings, consumed via `useSettings().hasFeature(...)`).
 - When disabled for a brand, the **Match Advisor** section and its side-nav anchor are hidden in Backoffice.
+- The introductions list (`/introductions`) includes an **Advisor score** column sourced from `llmMatchAdvisor.score` for quick triage without opening each introduction.
 
 ## Development Guidelines
 
