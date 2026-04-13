@@ -97,7 +97,7 @@ The application uses a hierarchical routing structure with role-based access con
 
 ### 2. Content Management Section
 - **App Content** (`/content`) - Application content management
-- **Communications** (`/communications`) - Message and notification management
+- **Communications** (`/communications`) - Message and notification management. A plain-language guide for operators (how one-time, event-triggered, and delayed sends behave per channel) lives in the static docs site: `docs/Content/communications.html` in this repository.
 - **Info Screens** (`/screens`) - Information display screens
 - **Translations** (`/translations_list`) - Multi-language support
 - **Positions** (`/settings/positions`) - Position management
