@@ -391,6 +391,7 @@ Model/tokens/temperature/apiKey are read from `extra` (type-level overrides base
 **Query Parameters**:
 - `url`: Full S3 object URL
 **Behavior notes**:
+- Returns `400` (`url is required`) when query parameter is missing.
 - Returns `404` (`File not found`) when the S3 object key does not exist.
 - Returns `500` (`Failed to fetch file`) for unexpected S3/runtime failures.
 
