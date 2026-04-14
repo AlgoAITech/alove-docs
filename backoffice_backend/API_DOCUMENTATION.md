@@ -333,11 +333,11 @@ Model/tokens/temperature/apiKey are read from `extra` (type-level overrides base
 ### Admin Channel Events (General Codes)
 
 - Admin channels are configured as `general_codes` entries with `type = "adminChannel"`.
-- Backoffice profile status updates now emit:
-  - `CommEvent.ProfileStatusUpdated` (existing profile-targeted comms)
-  - `CommEvent.BOAdminUpdate` with `eventParam = "ProfileStatusUpdated"` (new admin-targeted comms)
+- Backoffice profile status updates emit:
+  - `CommEvent.ProfileStatusUpdated` (end-user / profile-targeted comms; `eventParam` is `newStatus-oldStatus`)
+  - `CommEvent.AdminProfileStatusUpdated` (admin-targeted comms; `eventParam` is the **new status id** as a string, same filtering model as end-user `ProfileStatusUpdated`)
 - To notify internal admins on profile status changes done from backoffice, configure an Admin Channel row with:
-  - `extra.event = "ProfileStatusUpdated"`
+  - `extra.event = "<statusId>"` (numeric string, e.g. `"1"`) to match that status only, **or** legacy `extra.event = "ProfileStatusUpdated"` to receive all such updates
   - `extra.users = [<boUserId>, ...]`
 
 ### Customer Support Endpoints
