@@ -159,6 +159,13 @@ The User Service manages user accounts, personal information, and user-related o
   - `401` - Unauthorized
   - `500` - Server error
 
+**Behavior notes**:
+- Missing IDs are treated as a partial-success case: the endpoint returns only users that were found.
+- When one or more requested IDs are missing, the service now emits a single aggregated info log that includes:
+  - requested count
+  - missing count
+  - missing ID list
+
 ### Parent-Child Relationship Functions
 
 #### addParentEmailHandler
