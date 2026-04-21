@@ -50,7 +50,7 @@ The Introductions Service manages the core matchmaking functionality of the JLOV
   - `401` - Unauthorized
   - `500` - Server error
 
-When the matching service (Meeplus AI) responds with an error whose message includes `Profile attachment is empty` (missing `attachmentResult` in profile external info), this handler calls profile-service `GET /profiles/predictor/{profile_id}` once. That endpoint runs `predictor_attachmentCalc` when needed, then the matching suggestions request is retried so scoring can proceed.
+When the matching service (Meeplus AI) responds with an error whose message includes `Profile attachment is empty` (missing `attachmentResult` in profile external info), this handler calls profile-service `GET /profiles/predictor/{profile_id}` once. That endpoint runs `predictor_attachmentCalc` when needed, then the matching suggestions request is retried so scoring can proceed. Both outbound calls use `@jlov/infra-lib` helpers (`getMatchingSuggestions`, `getProfilePredictor`) built on the same `makeRequest`-style HTTP client as other facades.
 
 When `pendingIntroductionsMode = "noTolerance"`, suggestions are routed to `PENDING` only if:
 - `AnyDeclined3516` is true for either side, or
