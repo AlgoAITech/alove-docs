@@ -16,6 +16,7 @@
 | GET | `/api/profiles/:id` | EntityGuard | Get specific profile |
 | PUT | `/api/profiles/:id` | EntityGuard + RolesGuard | Update profile |
 | DELETE | `/api/profiles/:id` | EntityGuard + RolesGuard | Delete profile |
+| POST | `/api/profiles/:id/link-parent-child` | EntityGuard + RolesGuard (ViewEndUser + BManager) | Link accounts: `linkChild` sets target profile’s `parentUserId` to this parent’s `userId`; `linkParent` sets current profile’s `parentUserId` to the target parent’s `userId`. Body: `{ "mode": "linkChild" \| "linkParent", "targetProfileOrUserId": "<uuid>" }` (target resolved by profile ID or user ID, same brand). |
 
 ## Content Management
 | Method | Endpoint | Auth | Description |
