@@ -90,7 +90,7 @@ The application uses a hierarchical routing structure with role-based access con
 
 ### 1. User Management Section
 - **End Users** (`/endUsers`) - Manage platform users
-- **View end user** (`/endUsers/:id`) - For brand managers: bottom actions include **Link child account** when the profile’s `userType` is parent, or **Link a parent** otherwise; these open a dialog to enter the other account’s profile ID or user ID and call `POST /api/profiles/:id/link-parent-child` on the backend.
+- **View end user** (`/endUsers/:id`) - For brand managers: bottom actions **Link child account** (when `userType` is parent) or **Link a parent** otherwise; dialog collects the other account’s profile or user ID and calls `POST /api/profiles/:id/link-parent-child`, which updates `parent_user_id`, `familyId`, `isChild`, `userType`, and Cognito `custom:parent` on the child side.
 - **System Users** (`/systemUsers`) - Admin user management
 - **Roles & Permissions** (`/roles`) - Role-based access control
 - **Groups** (`/groups`) - User grouping functionality

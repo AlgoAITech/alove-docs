@@ -16,7 +16,7 @@
 | GET | `/api/profiles/:id` | EntityGuard | Get specific profile |
 | PUT | `/api/profiles/:id` | EntityGuard + RolesGuard | Update profile |
 | DELETE | `/api/profiles/:id` | EntityGuard + RolesGuard | Delete profile |
-| POST | `/api/profiles/:id/link-parent-child` | EntityGuard + RolesGuard (ViewEndUser + BManager) | Link accounts: `linkChild` sets target profile’s `parentUserId` to this parent’s `userId`; `linkParent` sets current profile’s `parentUserId` to the target parent’s `userId`. Body: `{ "mode": "linkChild" \| "linkParent", "targetProfileOrUserId": "<uuid>" }` (target resolved by profile ID or user ID, same brand). |
+| POST | `/api/profiles/:id/link-parent-child` | EntityGuard + RolesGuard (ViewEndUser + BManager) | Link parent/child: body `{ "mode": "linkChild" \| "linkParent", "targetProfileOrUserId": "<uuid>" }` (target by profile ID or user ID, same brand). Updates `parent_user_id`, `attributes_values` (`familyId`, `isChild`, `userType`), and child Cognito `custom:parent` (aligned with profile-service `createSibling` / `makePrimaryAccount`). |
 
 ## Content Management
 | Method | Endpoint | Auth | Description |
