@@ -151,7 +151,7 @@ Returns personality predictor scores for a user.
 3. **Compatibility Matrix**: Applies compatibility rules between different styles
 
 ### Predictor relation score (suggestions)
-When suggesting matches, the service can score each candidate pair using `predictors_relations` plus per–question-category averages stored on profiles (`profile_external_info` rows whose `attribute_name` is the category id and `attribute_value` is the numeric average, typically `source = predictorsCalc`).
+When suggesting matches, the service can score each candidate pair using `predictors_relations` plus per–question-category averages stored on profiles (`profile_external_info` rows whose `attribute_name` is the category id and `attribute_value` is the numeric average, typically `source = predictorsCalc`). Those averages are produced from **predictor scale** questionnaire answers only (see profile-service `predictorsCalcFromResponses`).
 
 - Only rows with `predictor1 = predictor2` (category id) are used. Rows sharing the same non-empty `relation_group` and the same `grade` form one group (often two categories).
 - Each row’s `level1` / `level2` are discrete levels **0–4** for profile 1 and profile 2. Scale averages (1–7) map to levels: (1,2]→0, (2,3.5]→1, (3.5,4.5]→2, (4.5,6]→3, (6,7]→4.
