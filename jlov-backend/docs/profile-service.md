@@ -373,7 +373,7 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
 - **Parameters**:
   - `pathParameters.profile_id` - Profile ID
 - **Computation** (when `attachmentResult` is missing):
-  1. Loads the latest `profile_responses` per `batch_content_id` joined to `question` where `question_type = 3` (predictor).
+  1. Loads the latest `profile_responses` per `batch_content_id` joined to `question` where `question_type = 3` (predictor) and `response_type` is scale only.
   2. Averages numeric answers by `question.question_category_id` and upserts `profile_external_info`: `attribute_name` = category id (string), `attribute_value` = average, `source` = `predictorsCalc` (for meeplus_ai / dynamic scoring only).
   3. Calls `public.predictor_attachmentCalc(profile_id)` so `attachmentResult` is populated as before for legacy clients.
 - **Returns**:
