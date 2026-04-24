@@ -363,7 +363,7 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
   - `500` - Service error
 
 #### predictor
-**Purpose**: Gets prediction data for a profile
+**Purpose**: Ensures predictor / attachment data exists for a profile. When `profile_external_info` has no row for `attachmentResult`, the service computes scores in application code (no DB function `predictor_attachmentCalc`).
 - **Handler**: `src/functions/getPredictor.getPredictorHandler`
 - **Path**: `/predictor/{profile_id}`
 - **Method**: GET
@@ -372,8 +372,13 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
 - **Authentication**: Required (Cognito User Pools)
 - **Parameters**:
   - `pathParameters.profile_id` - Profile ID
+- **Computation** (when `attachmentResult` is missing):
+  1. Loads the latest `profile_responses` per `batch_content_id` joined to `question` where `question_type = 3` (predictor).
+  2. Groups numeric answers by `question.question_category_id` (question category / general_codes id) and averages them.
+  3. Upserts `profile_external_info` rows: `attribute_name` = category id (string), `attribute_value` = average, `source` = `predictorsCalc`.
+  4. Derives `attachmentResult` when configured: set env `PREDICTOR_ATTACHMENT_RELATION_GROUP` to the `relation_group` value used in `predictors_relations` for the attachment factor (exactly two question-category ids in that group). Rows must pair-match the user’s discrete levels (0–4 bands from `level1`/`level2`) with the same `grade` on both categories. Classification uses those levels (mid-split at level 3). If the group is missing or no row matches, optional fallbacks: `PREDICTOR_ATTACHMENT_ANXIETY_CATEGORY_ID` and `PREDICTOR_ATTACHMENT_AVOIDANCE_CATEGORY_ID` with legacy numeric cutoffs on raw averages, or no `attachmentResult` row if neither path applies.
 - **Returns**:
-  - `200` - Prediction data retrieved successfully
+  - `200` - `{ attribute_value }` when `attachmentResult` exists after read or compute; body may be empty / null if attachment could not be derived
   - `401` - Unauthorized
   - `404` - Profile not found
   - `500` - Server error
