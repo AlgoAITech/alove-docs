@@ -363,7 +363,7 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
   - `500` - Service error
 
 #### predictor
-**Purpose**: Gets prediction data for a profile
+**Purpose**: Returns legacy `attachmentResult` for a profile. When it is missing, the service first writes per–question-category predictor averages for downstream matching (meeplus_ai), then fills `attachmentResult` via the existing DB function for frontend compatibility.
 - **Handler**: `src/functions/getPredictor.getPredictorHandler`
 - **Path**: `/predictor/{profile_id}`
 - **Method**: GET
@@ -372,8 +372,12 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
 - **Authentication**: Required (Cognito User Pools)
 - **Parameters**:
   - `pathParameters.profile_id` - Profile ID
+- **Computation** (when `attachmentResult` is missing):
+  1. Loads the latest `profile_responses` per `batch_content_id` joined to `question` where `question_type = 3` (predictor) and `response_type` is scale only.
+  2. Averages numeric answers by `question.question_category_id` and upserts `profile_external_info`: `attribute_name` = category id (string), `attribute_value` = average, `source` = `predictorsCalc` (for meeplus_ai / dynamic scoring only).
+  3. Calls `public.predictor_attachmentCalc(profile_id)` so `attachmentResult` is populated as before for legacy clients.
 - **Returns**:
-  - `200` - Prediction data retrieved successfully
+  - `200` - `{ attribute_value }` for `attachmentResult` when present after read or DB function; may be null if the function did not write a row
   - `401` - Unauthorized
   - `404` - Profile not found
   - `500` - Server error
