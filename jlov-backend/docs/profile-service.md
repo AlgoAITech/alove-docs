@@ -469,6 +469,31 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
 
 ### Specialized Functions
 
+#### profileLookupHandler
+**Purpose**: Performs private, advanced profile filtering for backoffice `/profiles/byAttributes` flows
+- **Handler**: `src/functions/profileLookup.profileLookupHandler`
+- **Path**: `/private/profileLookup`
+- **Method**: POST
+- **CORS**: true
+- **Private**: true
+- **Authentication**: Required (Cognito User Pools)
+- **Parameters**:
+  - `body.filter` - Array of attribute filter conditions
+  - `body.operator` - Logical operator (`AND` or `OR`)
+  - `body.page` - Pagination page (0-based)
+  - `body.brandId` - Brand identifier
+  - `body.statusId` (optional) - Status filter
+  - `body.internal` (optional) - Internal profiles filter
+  - `body.sort` (optional) - Sort mode
+- **Returns**:
+  - `200` - Matching profile IDs and total count
+  - `400` - Invalid/empty filter input
+  - `500` - Query execution failure
+- **Notes**:
+  - Filters are split across `profiles.attributes_values`, `profiles.settings`, and `profile_external_info`
+  - External attribute matching is case-insensitive on `profile_external_info.attribute_name`
+  - Attributes that exist in `profile_external_info` for the brand are treated as external even when profile-attribute metadata is missing
+
 #### createSiblingHandler
 **Purpose**: Creates a sibling profile for a user
 - **Handler**: `src/functions/createSibling.createSiblingHandler`
