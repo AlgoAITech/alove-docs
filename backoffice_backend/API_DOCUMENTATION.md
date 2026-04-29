@@ -254,9 +254,29 @@ Resolution order:
 
 Model/tokens/temperature/apiKey are read from `extra` (type-level overrides base-level values).
 
+Current keys used by AI translation:
+- `translate-with-ai` (preferred)
+- `translate` (legacy fallback key)
+
+For translation (`AIService.translate`), runtime behavior now resolves:
+1. `translate-with-ai`
+2. `translate`
+3. built-in fallback prompt/model when no agent row is configured
+
+Translation supports the same `extra` shape:
+```json
+{
+  "prompt": "Translate JSON values from English to Spanish ...",
+  "model": "gpt-4o-mini",
+  "tokens": 2000,
+  "temperature": 0.1,
+  "apiKey": "sk-..."
+}
+```
+
 `apiKey` handling:
 - On create/update via backoffice API, `extra.apiKey` is encrypted before being stored.
-- On read, API returns a masked representation (`first 10 chars + "***"`), never the full key.
+- On read, API returns a masked representation (`"***" + last 4 chars`), never the full key.
 - Backend runtime decrypts the key only when making LLM calls.
 
 #### POST `/api/general-codes/auto-update-profile/trigger`

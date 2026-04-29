@@ -280,6 +280,21 @@ The Lora Service provides AI-powered conversation and questionnaire functionalit
 - **Private**: true (API Gateway API key)
 - **Parameters** (JSON body): Same as user endpoint, plus `brandId` (required, number)
 
+**Agent settings integration**:
+- Runtime resolves two optional `general_codes` rows (`type = "agent"`) per brand with fallback brand `0`:
+  - `name = "transcribe-audio"` for transcription model/settings
+  - `name = "transcribe-summary"` for summary model/settings
+- Supported `extra` fields:
+  - `model`
+  - `prompt` (used by summary step)
+  - `tokens`
+  - `temperature`
+  - `apiKey` (stored encrypted, decrypted only at runtime)
+- API key resolution order:
+  1. `transcribe-audio.extra.apiKey`
+  2. `transcribe-summary.extra.apiKey`
+  3. `OPENAI_API_KEY` env fallback
+
 ## Environment Variables
 
 The service uses the following environment variables:
