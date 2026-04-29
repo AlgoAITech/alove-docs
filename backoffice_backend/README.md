@@ -141,6 +141,7 @@ pnpm run test:cov
 ### Data Protection
 - Password hashing
 - Sensitive data filtering
+- Sensitive profile attributes are persisted as `["hidden"]` in `attributesValues`, while searchable HMAC tokens are maintained in dedicated `__searchTokens` keys and `_sensitiveSearchTokens` for backoffice free-text lookup
 - Secure file upload validation
 - SQL injection prevention
 
