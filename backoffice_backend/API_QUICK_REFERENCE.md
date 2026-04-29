@@ -104,6 +104,11 @@
 | GET | `/api/reports` | AuthGuard + RolesGuard | Get reports |
 | POST | `/api/reports/generate` | AuthGuard + RolesGuard | Generate report |
 
+## Reports Management
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/reports-management/generate-raw-query` | RolesGuard + Access(10.1) | Generate raw SQL and, when `reportId` is provided, persist both `config.rawQuery` and `config.rawQueryPrompt` in the report |
+
 ## AI Simulations
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
