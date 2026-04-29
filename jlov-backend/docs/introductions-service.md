@@ -56,6 +56,8 @@ When `pendingIntroductionsMode = "noTolerance"`, suggestions are routed to `PEND
 
 `tolerance_used` is an array of attribute names (for example `["agePref", "heightPref"]`) indicating exactly which attributes required tolerance during scoring.
 
+When an introduction is created in `PENDING` under `noTolerance`, `introductions.status_reason` stores admin-facing metadata: `toleranceUsedAttributes` (copy of `tolerance_used`), `pendingDueToPastDeclines` when `AnyDeclined3516` is set for either side, and `initiatorPastDeclineAttributeKeys` / `responderPastDeclineAttributeKeys` (profile attribute keys ending in `Declined3516` that are set, for example per-past-attribute decline markers).
+
 After a new introduction is persisted and reaches a “raw suggestion” state (`RAW`, `PENDING`, or `AVAILABILITY_CHECK` after `publishNewIntro`), the service **asynchronously** invokes the private `computeMatchAdvisor` endpoint via the user-events queue (`TechnicalEvent.LAMBDA_CALL`), so the HTTP path to suggestions returns without waiting for OpenAI.
 
 #### computeMatchAdvisor
