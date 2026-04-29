@@ -63,17 +63,17 @@ When an introduction is created in `PENDING` under `noTolerance`, `introductions
 After a new introduction is persisted and reaches a “raw suggestion” state (`RAW`, `PENDING`, or `AVAILABILITY_CHECK` after `publishNewIntro`), the service **asynchronously** invokes the private `computeMatchAdvisor` endpoint via the user-events queue (`TechnicalEvent.LAMBDA_CALL`), so the HTTP path to suggestions returns without waiting for OpenAI.
 
 #### computeMatchAdvisor
-**Purpose**: Builds a translated snapshot of both profiles (labels + values via `translations`), loads decline-reason questionnaire answers for both sides (batch content IDs from setting `declineReasonQuestions`, same comma-separated list as backoffice `DeclineReasonQuestions`). Each decline row is passed to the model with `questionText` and `answeredWith` (question copy and resolved answer text via translations, not raw choice ids). Includes introduction status history, calls OpenAI, and saves the result on `introductions.llm_match_advisor` (JSONB). The default system prompt asks the model to flag when a side’s decline reason contradicts that side’s own stated preferences (so matchmakers can prompt users to update preferences or clarify).
+**Purpose**: Builds a translated snapshot of both profiles (labels + values via `translations`), loads decline-reason questionnaire answers for both sides (batch content IDs from setting `declineReasonQuestions`, same comma-separated list as backoffice `DeclineReasonQuestions`). Each decline row is passed to the model with `questionText` and `answeredWith` (question copy and resolved answer text via translations, not raw choice ids). Includes introduction status history, calls OpenAI, and saves the result on `introductions.llm_match_advisor` (JSONB). The **system prompt** must be configured on the `match-advisor` agent (`general_codes.extra.prompt`); there is no in-repo default prompt file.
 - **Handler**: `src/functions/private/computeMatchAdvisor.computeMatchAdvisorHandler`
 - **Path**: `/private/introductions/{introductionId}/match-advisor`
 - **Method**: POST
 - **Timeout**: 120 seconds
 - **Private**: true (API key)
 - **Agent settings (DB)**: resolves `general_codes.type = "agent"` and `name = "match-advisor"` per brand (fallback brand `0`) for `prompt`, `model`, `tokens`, `temperature`, and optional encrypted `apiKey`.
-- **Fallbacks**:
-  - prompt: `src/data/matchAdvisor.system.prompt.txt`
+- **Fallbacks** (when not set on the agent row):
   - model: `SettingName.matchAdvisorOpenAIModel` -> `SettingName.aiModel` -> `gpt-4o-mini`
   - apiKey: `OPENAI_API_KEY` env when no agent `apiKey` exists
+- **Required**: `extra.prompt` on the `match-advisor` agent (brand-specific or brand `0`); the Lambda returns **503** if it is missing.
 - **Context payload** (stored on `llm_match_advisor.context`): profile snapshots, `declineResponsesInitiator` / `declineResponsesResponder`, `introductionStatusHistory`, algorithm scores, and related ids. (Planned doc items such as prior-pair history may be added in a later change.)
 - **Secrets**:
   - `general_codes.extra.apiKey` is expected encrypted at rest (`enc:v1:...`) and decrypted only at runtime.
