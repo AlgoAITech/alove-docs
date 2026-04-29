@@ -355,6 +355,18 @@ Model/tokens/temperature/apiKey are read from `extra` (type-level overrides base
 **Authentication**: AuthGuard + RolesGuard
 **Body**: Ticket creation data
 
+#### PUT `/api/customer-support/tickets/:id/assignee`
+**Purpose**: Update ticket assignees (and optionally move ticket brand)
+**Authentication**: AuthGuard + RolesGuard + Access(CustomerSupportTicketView, Edit)
+**Body**:
+- `id`: Ticket ID
+- `assignee`: Array of backoffice user IDs
+- `newBrandId` (optional): Brand ID (system admin only)
+**Behavior notes**:
+- Returns `400` when `assignee` is provided but contains no valid positive numeric IDs.
+- Ignores invalid non-numeric entries in mixed arrays and saves only valid IDs.
+- If no assignees remain after normalization, assignment email notifications are skipped.
+
 #### PUT `/api/customer-support/tickets/:id`
 **Purpose**: Update ticket
 **Authentication**: AuthGuard + RolesGuard
@@ -370,6 +382,28 @@ Model/tokens/temperature/apiKey are read from `extra` (type-level overrides base
 - `profileId`: Profile filter
 
 ### Settings Endpoints
+
+### Utils Endpoints
+
+#### GET `/api/utils/file`
+**Purpose**: Stream a file from S3 by URL
+**Authentication**: AuthGuard
+**Query Parameters**:
+- `url`: Full S3 object URL
+**Behavior notes**:
+- Returns `400` (`url is required`) when query parameter is missing.
+- Returns `404` (`File not found`) when the S3 object key does not exist.
+- Returns `500` (`Failed to fetch file`) for unexpected S3/runtime failures.
+
+### Communications / Twilio Endpoints
+
+#### POST `/api/twilio/waStatus`
+**Purpose**: Process WhatsApp status callbacks
+**Authentication**: None (provider callback endpoint)
+**Behavior notes**:
+- Error codes `63024` / `212111`: disables WhatsApp notifications for the user/profile.
+- Error code `63049`: logged as informational provider-delivery outcome (not application error).
+- Other failed statuses continue to be logged as errors.
 
 #### GET `/api/settings`
 **Purpose**: Get application settings
