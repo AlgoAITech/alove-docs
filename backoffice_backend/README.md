@@ -111,7 +111,7 @@ pnpm run start:prod
 - Database connection strings
 - AWS credentials
 - External service API keys
-- **Cursor Cloud Agents** (optional; required for “Send to AI” on support tickets): `CURSOR_API_KEY` from the [Cursor Dashboard](https://cursor.com/settings); `CURSOR_META_REPO_URL` as the full GitHub URL of the platform meta-repo; optional `CURSOR_META_REPO_REF` (defaults to `master`) for the base branch passed to the [Cloud Agents API](https://cursor.com/docs/cloud-agent/api/endpoints).
+- **Cursor Cloud Agents** (optional; required for “Send to AI” on support tickets): `CURSOR_API_KEY` from the [Cursor Dashboard](https://cursor.com/settings); `CURSOR_META_REPO_URL` as the full GitHub URL of the platform meta-repo; optional `CURSOR_META_REPO_REF` (defaults to `master`) for the base branch passed to the [Cloud Agents API](https://cursor.com/docs/cloud-agent/api/endpoints). When a ticket is assigned to an AI triage user (`aiTicketUserIds`), the backend starts at most one triage agent per ticket every five minutes to avoid duplicate runs from rapid reassignment or create-then-assign flows.
 
 ### Testing
 ```bash
