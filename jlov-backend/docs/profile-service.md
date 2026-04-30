@@ -628,6 +628,7 @@ The service uses the following environment variables:
 - **Moderation**: Administrative photo approval/rejection
 - **Ordering**: Custom photo display order
 - **Status Tracking**: Photo approval status management
+- **HEIC / HEIF in `getProfilePhoto`**: Objects in S3 may be HEIC even when the key ends in `.jpg`. The profile service decodes HEIC with `heic-decode` (WASM) and re-encodes to JPEG before applying watermarks with Sharp, because the Lambda Sharp build does not ship libheif and would otherwise throw `No decoding plugin installed for this compression format`.
 
 ## Security Features
 
