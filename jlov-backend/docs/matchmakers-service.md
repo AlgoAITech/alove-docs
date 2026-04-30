@@ -406,6 +406,41 @@ The service uses the following environment variables:
 - **Communication Tools**: Tools for communicating with clients
 - **Analytics**: Performance and success rate analytics
 
+### Introduction → Matchmakers Assignment
+
+The `introductions` table stores matchmaker assignment in the JSONB column
+`matchmakers` (source of truth):
+
+```json
+{
+  "current": [11, 12],
+  "next": [13]
+}
+```
+
+- `current` — matchmakers actively responsible for the intro (see, edit, get
+  notified). Length is typically 1; with the brand setting `multiMMS` it may
+  be more than one.
+- `next` — queue used when an MM declines: the first id is promoted into
+  `current`, replacing the declining MM.
+
+The legacy comma-separated column `matchmaker_id` (`"11,12,13"`) is kept and
+mirrored from `matchmakers` only because already-deployed mobile builds still
+read it. New backend logic must treat `matchmakers` as authoritative. Once the
+mobile rollout completes the legacy column and the `matchmakerId` field on
+`UserIntroduction` will be removed.
+
+**Migration**: backfill the new column from the legacy string per brand using
+the backoffice CLI:
+
+```bash
+pnpm run cli copy-introductions-matchmaker-id-to-jsonb <brandId> [--use-next] [--dry-run]
+```
+
+`--use-next` matches the new "first id is responsible, rest queued" semantics
+(first id → `current`, rest → `next`). Without the flag all ids land in
+`current`.
+
 ## Security Features
 
 - **Authentication Required**: All endpoints require valid JWT tokens
