@@ -46,6 +46,7 @@ The service provides sophisticated matching algorithms that consider multiple di
   - Question-based compatibility scoring
   - Weighted preference matching
   - Cached metadata for performance
+- **Age interval scoring** (`bio_prefs_scoring.interval_age`): partner birth-month values are expected as `YYYY-MM`. Values that are missing, malformed, or not a real calendar month are treated as a zero contribution for that question so suggestion Lambdas do not fail on bad profile data.
 
 ### 3. Personality Predictors (`predictors.py`)
 - **Function**: `get_predictors_questions_scores()`
