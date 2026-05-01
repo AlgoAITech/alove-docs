@@ -295,6 +295,8 @@ See **dataset `events` → `profile_events_grouped`** above for all columns and 
 
 **Agent rule:** Use **`profile_events_grouped`** for server-side tagging (not Postgres `events.profile_events`, not **`profile_events`** unless you deliberately need raw rows).
 
+**Introduction chat analytics (backoffice):** `backoffice_backend` → `IntroductionChatAnalyticsService` exposes **`GET introductions/:id/chat-analytics`**. There is **no `introduction_id`** in BigQuery; the handler restricts **`bid`**, **both initiator and responder `pid`**, and a **half-open timestamp window** `[t_start, t_end)` derived from Postgres **`introduction_history`** (first **MATCHED** through first terminal status or “now”). The SQL uses the same **`bounds`** pattern as above: **`DATE(pe.ts) BETWEEN d_start AND d_end`** plus **`pe.ts >= t_start AND pe.ts < t_end`** for partition pruning. Counts come from grouped buckets (see **freshness caveat** above); **`last_activity_at`** is **`MAX(ts)`** over `messageSent` / `mediaSent`, which may be **day-resolution** depending on ETL.
+
 ### 4. Firebase Crashlytics export tables (`firebase_crashlytics` dataset)
 
 **Role:** Crash and non-fatal event rows exported from Firebase Crashlytics to BigQuery.
