@@ -113,6 +113,10 @@ pnpm run start:prod
 - External service API keys
 - **Cursor Cloud Agents** (optional; required for “Send to AI” on support tickets): `CURSOR_API_KEY` from the [Cursor Dashboard](https://cursor.com/settings); `CURSOR_META_REPO_URL` as the full GitHub URL of the platform meta-repo; optional `CURSOR_META_REPO_REF` (defaults to `master`) for the base branch passed to the [Cloud Agents API](https://cursor.com/docs/cloud-agent/api/endpoints). When a ticket is assigned to an AI triage user (`aiTicketUserIds`), the backend starts at most one triage agent per ticket every five minutes to avoid duplicate runs from rapid reassignment or create-then-assign flows.
 
+### Customer support ticket `source` values
+
+Tickets stored in `bo_customer_support_tickets.source` include: **0** — end-user mobile app; **1** — admin/backoffice system ticket; **2** — system ticket opened from the matchmaker **bo mobile** app (SME). The backoffice **System tickets** list (`GET /customerSupport?source=1`) returns both **1** and **2**; a dedicated SME list uses `source=2`. Matchmakers typically create with source **2**; internal users with SME list access create with **1** (same as backoffice).
+
 ### Testing
 ```bash
 # Unit tests
