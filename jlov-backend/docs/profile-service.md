@@ -8,6 +8,8 @@ The Profile Service manages user profiles, photos, preferences, and profile-rela
 
 Operational emails (communications sent via `profile-service` notifications) may use the **`backOffice`** next-screen action. For those emails, `NEXT_LINK` / `DECLINE_LINK` are built from the brand **`matchmakerUrl`** setting and point at the static page **`/bo-redirect.html`**, with the target backoffice path in the **`link`** query parameter (URL-encoded). That page opens the native Matchmaker app on mobile when possible (`bomobile://open?link=...`) and falls back to the web backoffice on desktop or if the app does not open.
 
+For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGuestAdminReply`, the profile service may set `NEXT_LINK` to `/tickets/{ticketSource}/{ticketId}` (numeric `ticketSource` matches `TicketSource` in the backoffice) when the event payload includes `ticketId` and `ticketSource`.
+
 ## Service Details
 
 - **Runtime**: Node.js 22.x
