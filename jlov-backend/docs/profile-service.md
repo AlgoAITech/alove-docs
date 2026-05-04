@@ -477,6 +477,17 @@ For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGues
   - `404` - Rule not found
   - `500` - Server error
 
+#### processStaleAgePreferenceBump
+**Purpose**: Daily job that increases the **upper bound** of partner age range answers when the member’s latest questionnaire answer for that step is older than one year. Keeps matching profiles aligned without requiring the user to reopen settings.
+
+- **Handler**: `src/functions/private/processStaleAgePreferenceBump.processStaleAgePreferenceBumpHandler`
+- **Trigger**: CloudWatch Events — daily at **02:30 UTC** (`cron(30 2 * * ? *)`)
+- **Timeout**: 900 seconds
+- **Behavior**:
+  1. Resolves active `batch_content` rows joined to `question` where `question_type` is preference (`Pref`) and `profile_attr` matches age-preference naming (`agePref`, or names containing `age` + `pref`).
+  2. For each active brand, finds the **latest** `profile_responses` row per `(profile_id, batch_content_id)` where `COALESCE(reported, created)` is older than one year.
+  3. Parses the stored range string (`min-max`, e.g. `18.0-60.0`), increases **max** by 1 (capped by `question.range_max` when set), inserts a **new** `profile_responses` row with `skip_reason_id = 2`, and updates `profiles.attributes_values` for the question’s `profile_attr` when it matches the same range pattern.
+
 ### Specialized Functions
 
 #### profileLookupHandler
