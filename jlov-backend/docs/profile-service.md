@@ -502,6 +502,7 @@ For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGues
   - `body.filter` - Array of attribute filter conditions
   - `body.operator` - Logical operator (`AND` or `OR`)
   - `body.page` - Pagination page (0-based)
+  - `body.pageSize` (optional) - Page size for SQL `LIMIT`/`OFFSET` (default **20**, clamped **1–500**). Backoffice typically sends **200**; matchmaker mobile singles browse sends **10**.
   - `body.brandId` - Brand identifier
   - `body.statusId` (optional) - Status filter
   - `body.internal` (optional) - Internal profiles filter
@@ -511,6 +512,7 @@ For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGues
   - `400` - Invalid/empty filter input
   - `500` - Query execution failure
 - **Notes**:
+  - Pagination uses `LIMIT pageSize OFFSET page * pageSize` (contiguous pages; no skipped rows between pages).
   - Filters are split across `profiles.attributes_values`, `profiles.settings`, and `profile_external_info`
   - External attribute matching is case-insensitive on `profile_external_info.attribute_name`
   - Attributes that exist in `profile_external_info` for the brand are treated as external even when profile-attribute metadata is missing
