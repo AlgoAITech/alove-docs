@@ -117,7 +117,7 @@ pnpm run start:prod
 
 Tickets stored in `bo_customer_support_tickets.source` include: **0** — end-user mobile app; **1** — admin/backoffice system ticket; **2** — system ticket opened from the matchmaker **bo mobile** app (SME). The backoffice **System tickets** list (`GET /customerSupport?source=1`) returns both **1** and **2**; a dedicated SME list uses `source=2`. Matchmakers typically create with source **2**; internal users with SME list access create with **1** (same as backoffice).
 
-**SME vs internal system ticket topics:** Matchmaker tickets should use dedicated general-code topic types **`smeTopic`** (and optional **`smeTopicSubTopic`** for platform/sub-category), not **`systemTicketTopic`** / **`systemTicketSubTopic`**. That keeps SME routing and auto-assignment separate from internal/Algo system ticket topics. SLA and default assignees still come from `customer_support_settings` rows keyed by `topic_id` (same table as other support topics).
+**SME vs internal system ticket topics:** Matchmaker tickets should use dedicated general-code topic types **`smeTopic`** (and optional **`smeTopicSubTopic`** for platform/sub-category), not **`systemTicketTopic`** / **`systemTicketSubTopic`**. That keeps SME routing and auto-assignment separate from internal/Algo system ticket topics. SLA and default assignees still come from `customer_support_settings` rows keyed by `topic_id` (same table as other support topics). **bo mobile** resolves SME topic labels from the published **`codes`** bundle (`ALoveCodeConfig`), not a separate general-codes HTTP call.
 
 ### Testing
 ```bash
