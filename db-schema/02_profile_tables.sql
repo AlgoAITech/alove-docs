@@ -79,7 +79,7 @@ CREATE TABLE public.profile_external_info (
     created timestamp without time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated timestamp without time zone DEFAULT timezone('utc'::text, now()),
     attribute_name character varying(100) NOT NULL,
-    attribute_value character varying(100),
+    attribute_value text,
     source character varying NOT NULL
 );
 
