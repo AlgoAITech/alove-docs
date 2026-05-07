@@ -137,7 +137,8 @@ CREATE TABLE public.audit_log (
     created timestamp without time zone DEFAULT timezone('UTC'::text, now()) NOT NULL,
     logged_user character varying NOT NULL,
     change_type character(1) NOT NULL,
-    table_name character varying(255)
+    table_name character varying(255),
+    record_id text
 );
 
 CREATE TABLE public."user" (
