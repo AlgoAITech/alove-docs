@@ -486,7 +486,7 @@ For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGues
 - **Behavior**:
   1. Resolves active `batch_content` rows joined to `question` where `question_type` is preference (`Pref`) and `profile_attr` matches partner age preference — canonical storage key **`prefAge`** (also **`agePref`** and names containing `age` + `pref` for legacy/other configs).
   2. For each active brand, finds the **latest** `profile_responses` row per `(profile_id, batch_content_id)` where `COALESCE(reported, created)` is older than one year.
-  3. Parses the stored range string (`min-max`, e.g. `18.0-60.0`), increases **max** by 1 (capped by `question.range_max` when set), inserts a **new** `profile_responses` row with `skip_reason_id = 2`, and updates `profiles.attributes_values` for the question’s `profile_attr` when it matches the same range pattern.
+  3. Parses partner age range from `response.a1` as **`[minAge, maxAge]`** (two numbers), increases **max** by 1 (capped by `question.range_max` when set), inserts a **new** `profile_responses` row with `skip_reason_id = 2`, and updates `profiles.attributes_values` for the question’s `profile_attr` using the same tuple shape when stored as two numbers, or legacy `"min-max"` string form when present.
 
 ### Specialized Functions
 
