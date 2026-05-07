@@ -130,6 +130,7 @@ CREATE TABLE public.bo_system_users (
     notifications jsonb
 );
 
+-- record_id: see jlov-backend db-scripts/audit_trigger.sql (PK / unique / id / batch_languages).
 CREATE TABLE public.audit_log (
     id bigint NOT NULL,
     old_row jsonb NOT NULL,
