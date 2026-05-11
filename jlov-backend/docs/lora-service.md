@@ -110,13 +110,12 @@ The Lora Service provides AI-powered conversation and questionnaire functionalit
 - **Path**: `/autocompleteResponses`
 - **Method**: GET
 - **CORS**: true
-- **Authentication**: Required (Cognito User Pools)
+- **Authentication**: None (public GET; callers pass `brand_id` to scope data)
 - **Parameters**:
-  - `queryStringParameters.questionType` (optional) - Type of question for suggestions
-  - `queryStringParameters.partialResponse` (optional) - Partial response for suggestions
+  - `queryStringParameters.brand_id` — Brand whose autocomplete questions and prior answers are aggregated
+  - `queryStringParameters.profile_attr` (optional) — Limit aggregation to one `profiles.attributes_values` key
 - **Returns**:
-  - `200` - Autocomplete responses loaded successfully
-  - `401` - Unauthorized
+  - `200` - JSON object keyed by `profile_attr` with deduplicated string suggestions (supports values stored as JSON arrays or as plain jsonb strings from `attributes_values`)
   - `500` - Server error
 
 ### Message Management Functions
