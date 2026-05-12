@@ -167,6 +167,11 @@ The Matchmakers Service manages professional matchmaker functionality for the JL
   - `404` - Introduction not found
   - `500` - Server error
 
+**Relationship milestone duplicate handling**:
+- When moving an introduction to `DATING`, `ENGAGED`, or `MARRIED`, the service first closes older active duplicate introductions for the same profile pair as `TERMINATED`.
+- This keeps the database duplicate-introduction trigger from blocking valid milestone updates when legacy/imported data contains more than one active introduction for the same couple.
+- Closed duplicates keep a status-change MM log and `statusReason` metadata pointing to the introduction that superseded them.
+
 #### requestChangeHandler
 **Purpose**: Requests a change to an introduction
 - **Handler**: `src/functions/requestIntroductionChange.requestIntroductionChangeHandler`
