@@ -357,7 +357,14 @@ Resume icon component.
 - Granular permissions system
 - Page-level access control
 - Feature-based visibility
-- Role inheritance and hierarchy
+- **Roles are organized as a tree** (`bo_roles.parent_id`): each role inherits the union of every descendant's permissions at runtime, so permission editing happens only at the leaves and parents automatically gain everything below.
+  - Roles list (`/roles`) renders the tree from `parent_id` (no role-type grouping) and admins can re-parent a role inline.
+  - Role permissions screen marks cells that are already granted by a descendant as a disabled check with a tooltip naming those descendants.
+  - System-user role pickers show only the current viewer's role and its descendants (sub-tree filter).
+  - Two CLI commands maintain the tree per brand:
+    - `pnpm run cli rearrange-roles-tree` — Super Admin → Brand Admin → managers (one per type) → roles of that type.
+    - `pnpm run cli clean-redundant-role-permissions` — strip permissions from parents that any descendant already holds.
+  - Legacy `bo_roles.type` and `bo_roles.is_manager` columns are deprecated and ignored by permission resolution.
 
 ### 2. Multi-Brand Support
 - Brand-specific configurations
