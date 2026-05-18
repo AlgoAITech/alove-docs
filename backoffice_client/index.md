@@ -454,4 +454,8 @@ Resume icon component.
 3. **Use proper mocking strategies**
 4. **Test error scenarios**
 
+### AWS Amplify (web app) and source maps
+
+The deployable React app is built on **AWS Amplify** (`backoffice_client/amplify.yml`, `app/` root). Production builds upload source maps to **Coralogix** and archive **`build/static/js/*.js` plus `*.map`** to `s3://<assets-bucket>/private/source-maps/backoffice-client/<AWS_JOB_ID>/` for decoding minified browser stacks. Bucket selection follows branch defaults in Amplify or the **`SOURCE_MAPS_S3_BUCKET`** env override.
+
 This documentation provides a comprehensive overview of the Mujual Back Office project, its architecture, components, and development guidelines. The system is designed to be scalable, maintainable, and user-friendly while providing powerful administrative capabilities for the matchmaking platform. 
