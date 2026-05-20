@@ -120,6 +120,8 @@ Tickets stored in `bo_customer_support_tickets.source` include: **0** — end-us
 
 **SME vs internal system ticket topics:** Matchmaker tickets should use dedicated general-code topic types **`smeTopic`** (and optional **`smeTopicSubTopic`** for platform/sub-category), not **`systemTicketTopic`** / **`systemTicketSubTopic`**. That keeps SME routing and auto-assignment separate from internal/Algo system ticket topics. SLA and default assignees still come from `customer_support_settings` rows keyed by `topic_id` (same table as other support topics). **bo mobile** resolves SME topic labels from the published **`codes`** bundle (`ALoveCodeConfig`), not a separate general-codes HTTP call.
 
+**bo mobile — shidduch lifecycle progress:** The matchmaker **view shidduch** overview includes a vertical progress card (matched → … → engaged) only when the published **`app_features`** map includes **`showShidduchProgress`** set to `true`. If the key is missing or false (default), that progress UI is hidden; required actions and status still behave as before.
+
 ### Testing
 ```bash
 # Unit tests
