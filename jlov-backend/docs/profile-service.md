@@ -503,7 +503,7 @@ For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGues
   - `body.operator` - Logical operator (`AND` or `OR`)
   - `body.page` - Pagination page (0-based)
   - `body.pageSize` (optional) - Page size for SQL `LIMIT`/`OFFSET` (default **20**, clamped **1–500**). Backoffice typically sends **200**; matchmaker mobile singles browse sends **10**.
-  - When the API includes a total hit count, profile rows in the JSON array may carry **`full_count`** (total matching profiles for the current filter query). The matchmaker **bo_mobile** singles list reads this on the first page to show an overall results count in the screen header; clients should not assume every endpoint or page includes it.
+  - When the API includes a total hit count, profile rows in the JSON array may carry **`full_count`** (total matching profiles for the current filter query). The matchmaker **bo_mobile** singles list reads this on the first page **from the raw response before dropping internal-test or disallowed-status rows**, so the header total matches backoffice `TablePage` (`rows[0]?.full_count`); clients should not assume every endpoint or page includes it.
   - `body.brandId` - Brand identifier
   - `body.statusId` (optional) - Status filter
   - `body.internal` (optional) - Internal profiles filter
