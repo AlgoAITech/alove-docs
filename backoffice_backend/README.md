@@ -82,6 +82,7 @@ Brand 103: process.env.PORT + 103
 - **Group Management**: User grouping system
 - **Settings**: Application configuration
 - **Customer Support**: Ticket and support management
+- **SME payroll payments**: `GET /sme-payments` lists payments (optional filters: date range on `updated`, `mmId`, `introductionId`, `statusId`). `GET /sme-payments/stats` returns **pendingAmount**, **paidAmount**, and **totalAmount** (sums of `amount`) for the **same** filter set—used by the backoffice SME Payments stats panel. See `docs/sme-payments-api.md` in the **backoffice_backend** repo.
 
 ### Business Intelligence
 - **Dashboard**: Statistics and analytics
