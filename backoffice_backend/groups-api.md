@@ -3,6 +3,12 @@
 ## Overview
 The Groups API provides functionality to manage groups and their relationships with profiles. Groups can contain multiple profiles, and profiles can belong to multiple groups.
 
+### Groups Table (selected columns)
+- `attached_attribute_rules` (JSONB, nullable): array of `{ "attributeName": string, "values": string[] }`. When a profile is **first** attached to the group (mobile flow via `attachGroupById` or backoffice POST add-to-group), each listed attribute is set on `profiles.attributes_values` to the given value list (sensitive attributes follow the usual `["hidden"]` + Cognito rules in backoffice). Changes are audited in `profile_attribute_change_log` with `reason = attachedToGroup` and `group_id` referencing the group.
+
+### Profile attribute change log
+- `group_id` (int, nullable): populated together with `reason = attachedToGroup` when attributes are applied from `groups.attached_attribute_rules` on group attach.
+
 ## Database Schema
 
 ### Groups Table
@@ -69,7 +75,7 @@ CREATE UNIQUE INDEX profiles_groups_profile_id_idx ON public.profiles_groups USI
 #### Add Profile to Group
 - **POST** `/groups/:id/profiles/:profileId`
 - **Permissions**: ViewEndUser + Edit
-- **Description**: Adds a profile to a group
+- **Description**: Adds a profile to a group. If the group has `attached_attribute_rules`, those attributes are applied on this first attach and audited in `profile_attribute_change_log` (`reason = attachedToGroup`, `group_id` set).
 
 #### Remove Profile from Group
 - **DELETE** `/groups/:id/profiles/:profileId`
