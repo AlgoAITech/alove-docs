@@ -31,19 +31,21 @@ The Matchmakers Service manages professional matchmaker functionality for the JL
   - `500` - Server error
 
 #### getMatchmakersByIdsHandler
-**Purpose**: Retrieves specific matchmakers by their IDs
+**Purpose**: Retrieves specific matchmakers by their IDs (server-to-server and trusted clients only).
 - **Handler**: `src/functions/getMatchmakersByIds.getMatchmakersByIdsHandler`
 - **Path**: `/matchmakers/byIds`
 - **Method**: GET
 - **CORS**: true
-- **Authentication**: Required (Cognito User Pools)
+- **Authentication**: API Gateway **private** (requires `x-api-key` with the same key used by internal `makeRequest` callers, e.g. `ALOVE_API_KEY`). This route is **not** intended for anonymous or browser-facing use.
 - **Parameters**:
   - `queryStringParameters.matchmakerIds` - Comma-separated list of matchmaker IDs
-  - `queryStringParameters.format` (optional) - Response format preference
+  - `queryStringParameters.format` (optional) - Use `simple` for a reduced pickup-list shape
+  - `queryStringParameters.activeOnly` (optional)
+- **Response notes**: Matchmaker-attached `BoUser` objects **must not** include a `password` field in JSON responses; handlers strip any stored hash before serialization.
 - **Returns**:
   - `200` - Matchmakers retrieved successfully
   - `400` - Invalid matchmaker IDs
-  - `401` - Unauthorized
+  - `403` - Missing or invalid API key (when invoked through API Gateway as configured)
   - `500` - Server error
 
 #### getSingleMMHandler
