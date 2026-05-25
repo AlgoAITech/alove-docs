@@ -15,6 +15,8 @@ CREATE TABLE events.comm_logs (
     introduction_id character varying
 );
 
+-- Row direction follows scoring session (e.g. suggestion user→partner), which may differ from
+-- introductions.initiator_profile_id / responder_profile_id for the same pair. Backoffice aligns reads.
 CREATE TABLE events.match_scores (
     initiator_profile_id uuid NOT NULL,
     responder_profile_id uuid NOT NULL,
