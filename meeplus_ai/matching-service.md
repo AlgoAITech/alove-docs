@@ -140,6 +140,7 @@ Returns personality predictor scores for a user.
 2. **Weight Calculation**: Applies importance weights to different questions
 3. **Compatibility Score**: Calculates weighted average of matching responses
 4. **Threshold Filtering**: Filters out profiles below minimum compatibility threshold
+5. **Nominal “rather not say” vs “open to everyone”**: For nominal bio/preference pairs, if the partner’s bio answer is a **rather not say** / low-information token but the evaluator’s preference includes **open to all** / **open to everyone**, the engine treats that direction as a **full** score (not the low rather-not-say floor). The **a-dmin back office** introduction bio/preference display uses the same rule in `backoffice_client` (`attributesUtil.isAttributesMatch`) so per-attribute points on the introduction screen stay aligned with matcher behavior.
 
 ### Geographic Scoring
 1. **Distance Calculation**: Uses haversine formula for geographic distance
