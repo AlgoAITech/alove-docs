@@ -454,7 +454,7 @@ Translation supports the same `extra` shape:
 #### POST `/api/roles`
 **Purpose**: Create role
 **Authentication**: EntityGuard + RolesGuard
-**Body**: Role creation data
+**Body**: Role creation data (tree model: include `parentId`; legacy `type` / `typeId` is optional). For S-manager users, initial merged permissions are taken from legacy `typeId` / nested `type.id` when present; otherwise from the subtree of `parentId` when set; otherwise from the caller’s own roles.
 
 #### PUT `/api/roles/:id`
 **Purpose**: Update role
