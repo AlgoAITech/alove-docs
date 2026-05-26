@@ -454,7 +454,7 @@ Translation supports the same `extra` shape:
 #### POST `/api/roles`
 **Purpose**: Create role
 **Authentication**: EntityGuard + RolesGuard
-**Body**: Role creation data (tree model: include `parentId`; legacy `type` / `typeId` is optional). For S-manager users, initial merged permissions are taken from legacy `typeId` / nested `type.id` when present; otherwise from the subtree of `parentId` when set; otherwise from the caller’s own roles.
+**Body**: Role creation data for the tree model (`parentId`, `roleName`, etc.). Legacy `type` / `typeId` is ignored and not persisted on create. When **`parentId` is set**, the new row’s initial `permissions` JSON is a **deep copy of that parent role’s own `permissions`** (not a subtree merge). When **`parentId` is omitted**, initial permissions default to the creator’s effective permission union in the brand (`getMyPermissions`).
 
 #### PUT `/api/roles/:id`
 **Purpose**: Update role
