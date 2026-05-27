@@ -112,6 +112,7 @@ The application uses a hierarchical routing structure with role-based access con
 ### 4. Matchmaking Operations
 - **Shidduch Requests** (`/shidduch-requests`) - Matchmaking requests
 - **SME Profiles** (`/smeProfiles`) - Matchmaker profiles
+- **SME Payments** (`/SMEPayments`) - Matchmaker payroll payments list and stats. **Add payment** opens a dialog: enter shidduch (introduction) id and search to resolve matchmakers, pick a reason from `SMEPaymentShidduch` general codes (amount prefilled from the code’s `extra.amount` when present), optionally choose the matchmaker when the Multi-MMS feature assigns more than one, optional comment, then create a pending payment via `POST /sme-payments`. The `/SMEPayments/new` route remains for full-page creation.
 - **Shidduch Declines** (`/shidduch-declines`) - Declined matches
 
 ### 5. Support Center
