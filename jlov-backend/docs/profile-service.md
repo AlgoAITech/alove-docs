@@ -502,7 +502,7 @@ For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGues
   - `body.filter` - Array of attribute filter conditions
   - `body.operator` - Logical operator (`AND` or `OR`)
   - `body.page` - Pagination page (0-based)
-  - `body.pageSize` (optional) - Page size for SQL `LIMIT`/`OFFSET` (default **20**, clamped **1–500**). Backoffice typically sends **200**; matchmaker mobile singles browse sends **10**.
+  - `body.pageSize` (optional) - Page size for SQL `LIMIT`/`OFFSET` (default **200**, clamped **1–500**). Backoffice typically sends **200**; matchmaker mobile singles browse sends **10**.
   - When the API includes a total hit count, profile rows in the JSON array may carry **`full_count`** (total matching profiles for the current filter query). The matchmaker **bo_mobile** singles list reads this on the first page **from the raw response before dropping internal-test or disallowed-status rows**, so the header total matches backoffice `TablePage` (`rows[0]?.full_count`); clients should not assume every endpoint or page includes it.
   - `body.brandId` - Brand identifier
   - `body.statusId` (optional) - Status filter
@@ -515,6 +515,8 @@ For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGues
 - **Notes**:
   - Pagination uses `LIMIT pageSize OFFSET page * pageSize` (contiguous pages; no skipped rows between pages).
   - Filters are split across `profiles.attributes_values`, `profiles.settings`, and `profile_external_info`
+  - Profile-attribute metadata controls special routing only. Requested attributes with no metadata row are still treated as `profiles.attributes_values` filters so they are not silently dropped.
+  - Attribute `settings.searchAlso` expands one filter into an OR group across the source attribute and its configured alternate attributes; separate filters such as `gender` remain separate top-level conditions.
   - External attribute matching is case-insensitive on `profile_external_info.attribute_name`
   - Attributes that exist in `profile_external_info` for the brand are treated as external even when profile-attribute metadata is missing
 
