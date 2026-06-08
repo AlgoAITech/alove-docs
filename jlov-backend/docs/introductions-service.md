@@ -397,6 +397,19 @@ The service implements comprehensive error handling:
 - **Conflict Errors**: Conflicting introduction states
 - **Service Errors**: External service failures
 
+## Introduction status reference
+
+Key terminal statuses (see `public.introduction_status` and `IntroductionStatus` in infra-lib):
+
+| ID | Name | Notes |
+|----|------|-------|
+| 18 | ADMIN_REJECTED | Admin decline before send; never visible to end users; excluded from monthly intro limits |
+| 25 | NOT_COUNTED | Admin marks an already-declined/ignored intro so it does not count toward monthly limits; visible in backoffice lists |
+
+DB migration: `db-schema/migrations/add_not_counted_introduction_status.sql` (also in jlov-backend `db-scripts/sqlMigrations.sql`).
+
+Monthly limit exclusion: `calculateProfileAvaiablity` treats `NOT_COUNTED` like `ADMIN_REJECTED` for `maxIntroductionsMonthly`.
+
 ## Integration Points
 
 - **Profile Service**: User profile data for matching
