@@ -20,22 +20,9 @@ jobs:
           use-quiet-mode: 'yes'
           check-modified-files-only: 'yes'
           config-file: mlc_config.json
-
   notify-build-failure:
-    name: Notify CI failure webhook
-    needs: markdown-link-check
-    if: ${{ always() && needs.markdown-link-check.result == 'failure' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: AlgoAITech/meta-repo/.github/actions/notify-ci-failure@master
-        with:
-          webhook-url: ${{ secrets.CI_FAILURE_WEBHOOK_URL }}
-          webhook-token: ${{ secrets.CI_FAILURE_WEBHOOK_TOKEN }}
-          repository: ${{ github.repository }}
-          commit-sha: ${{ github.event.pull_request.head.sha || github.sha }}
-          branch: ${{ github.head_ref || github.ref_name }}
-          workflow-name: ${{ github.workflow }}
-          run-id: ${{ github.run_id }}
-          server-url: ${{ github.server_url }}
-          error-summary: ${{ github.workflow }} failed on ${{ github.head_ref || github.ref_name }}
+    needs: [markdown-link-check]
+    if: failure()
+    uses: AlgoAITech/meta-repo/.github/workflows/notify-ci-failure-callable.yml@master
+    secrets: inherit
+
