@@ -28,13 +28,13 @@ jobs:
     steps:
       - uses: AlgoAITech/meta-repo/.github/actions/notify-ci-failure@master
         with:
-          webhook-url: ${ secrets.CI_FAILURE_WEBHOOK_URL }
-          webhook-token: ${ secrets.CI_FAILURE_WEBHOOK_TOKEN }
-          repository: ${ github.repository }
-          commit-sha: ${ github.event.pull_request.head.sha || github.sha }
-          branch: ${ github.head_ref || github.ref_name }
-          workflow-name: ${ github.workflow }
-          run-id: ${ github.run_id }
-          server-url: ${ github.server_url }
-          error-summary: ${ github.workflow } failed on ${ github.head_ref || github.ref_name }
+          webhook-url: ${{ secrets.CI_FAILURE_WEBHOOK_URL }}
+          webhook-token: ${{ secrets.CI_FAILURE_WEBHOOK_TOKEN }}
+          repository: ${{ github.repository }}
+          commit-sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          branch: ${{ github.head_ref || github.ref_name }}
+          workflow-name: ${{ github.workflow }}
+          run-id: ${{ github.run_id }}
+          server-url: ${{ github.server_url }}
+          error-summary: ${{ github.workflow }} failed on ${{ github.head_ref || github.ref_name }}
 
