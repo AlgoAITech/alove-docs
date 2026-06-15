@@ -20,3 +20,9 @@ jobs:
           use-quiet-mode: 'yes'
           check-modified-files-only: 'yes'
           config-file: mlc_config.json
+  notify-build-failure:
+    needs: [markdown-link-check]
+    if: failure()
+    uses: AlgoAITech/meta-repo/.github/workflows/notify-ci-failure-callable.yml@master
+    secrets: inherit
+
