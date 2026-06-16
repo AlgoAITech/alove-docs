@@ -27,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/notify-ci-failure
         with:
           webhook-url: ${{ secrets.CI_FAILURE_WEBHOOK_URL }}
