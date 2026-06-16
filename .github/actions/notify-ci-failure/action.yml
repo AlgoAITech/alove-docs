@@ -32,7 +32,7 @@ runs:
     - uses: actions/checkout@v4
       with:
         ref: ${{ inputs.commit-sha }}
-        fetch-depth: 1
+        fetch-depth: 100
 
     - shell: bash
       env:
@@ -58,7 +58,59 @@ runs:
             --log-failed 2>/dev/null | tail -n 200 > /tmp/ci-failure.log
         fi
         set -e
-        export AGENT_ID="$(git log -1 --format=%B | sed -n 's/^Cursor-Agent-Id: *//p' | head -1)"
+
+        extract_agent_id() {
+          local msg="$1"
+          local id
+          id="$(printf '%s\n' "$msg" | sed -n 's/^Cursor-Agent-Id: *//p' | head -1 | tr -d '\r')"
+          if [ -n "$id" ]; then echo "$id"; return 0; fi
+          id="$(printf '%s\n' "$msg" | sed -n 's/^Agent-Id: *//p' | head -1 | tr -d '\r')"
+          if [ -n "$id" ]; then echo "$id"; return 0; fi
+          return 1
+        }
+
+        resolve_agent_id() {
+          local start="$1"
+          local -a queue=("$start")
+          local -a seen=()
+          local depth=0
+          local sha msg parent parents
+
+          contains() {
+            local needle="$1"
+            shift
+            local item
+            for item in "$@"; do
+              [ "$item" = "$needle" ] && return 0
+            done
+            return 1
+          }
+
+          while [ "${#queue[@]}" -gt 0 ] && [ "$depth" -lt 20 ]; do
+            local -a next=()
+            for sha in "${queue[@]}"; do
+              contains "$sha" "${seen[@]}" && continue
+              seen+=("$sha")
+              msg="$(git log -1 --format=%B "$sha" 2>/dev/null || true)"
+              if [ -n "$msg" ] && extract_agent_id "$msg"; then return 0; fi
+              parents="$(git rev-parse "$sha^@" 2>/dev/null || true)"
+              for parent in $parents; do
+                [ -n "$parent" ] && next+=("$parent")
+              done
+            done
+            queue=("${next[@]}")
+            depth=$((depth + 1))
+          done
+
+          if command -v gh >/dev/null 2>&1; then
+            msg="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}" --jq '.commit.message' 2>/dev/null || true)"
+            if [ -n "$msg" ] && extract_agent_id "$msg"; then return 0; fi
+          fi
+          return 1
+        }
+
+        AGENT_ID="$(resolve_agent_id "$GITHUB_SHA" || true)"
+        export AGENT_ID
         if [ -f /tmp/ci-failure.log ]; then
           CI_FAILURE_LOG="$(cat /tmp/ci-failure.log)"
           export CI_FAILURE_LOG
@@ -95,6 +147,12 @@ runs:
             print(f"webhook HTTP {err.code}: {body}", file=sys.stderr)
             if err.code in (409, 503):
                 print("treating agent-busy/duplicate as success for CI notify job")
+                sys.exit(0)
+            if err.code == 400 and (
+                "Could not resolve Cursor agent" in body
+                or "Duplicate CI failure" in body
+            ):
+                print("treating no-agent/duplicate notify as success for CI notify job")
                 sys.exit(0)
             raise
         PY
