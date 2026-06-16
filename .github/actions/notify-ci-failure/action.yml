@@ -1,0 +1,100 @@
+name: Notify CI failure webhook
+description: POST build failure to backoffice to re-trigger the Cursor cloud agent
+inputs:
+  webhook-url:
+    description: Backoffice POST /api/integrations/ci/build-failure URL
+    required: true
+  webhook-token:
+    description: Shared secret (X-CI-Webhook-Token)
+    required: true
+  repository:
+    required: true
+  commit-sha:
+    required: true
+  branch:
+    required: false
+    default: ''
+  workflow-name:
+    required: false
+    default: ''
+  run-id:
+    required: false
+    default: ''
+  server-url:
+    required: false
+    default: 'https://github.com'
+  error-summary:
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.commit-sha }}
+        fetch-depth: 1
+
+    - shell: bash
+      env:
+        WEBHOOK_URL: ${{ inputs.webhook-url }}
+        WEBHOOK_TOKEN: ${{ inputs.webhook-token }}
+        GITHUB_REPOSITORY: ${{ inputs.repository }}
+        GITHUB_SHA: ${{ inputs.commit-sha }}
+        GITHUB_REF_NAME: ${{ inputs.branch }}
+        GITHUB_WORKFLOW: ${{ inputs.workflow-name }}
+        GITHUB_RUN_ID: ${{ inputs.run-id }}
+        GITHUB_SERVER_URL: ${{ inputs.server-url }}
+        CI_FAILURE_SUMMARY: ${{ inputs.error-summary }}
+      run: |
+        set -euo pipefail
+        if [ -z "$WEBHOOK_URL" ] || [ -z "$WEBHOOK_TOKEN" ]; then
+          echo "CI_FAILURE_WEBHOOK_URL / CI_FAILURE_WEBHOOK_TOKEN not set; skipping"
+          exit 0
+        fi
+        set +e
+        if [ -n "$GITHUB_RUN_ID" ]; then
+          gh run view "$GITHUB_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --log-failed 2>/dev/null | tail -n 200 > /tmp/ci-failure.log
+        fi
+        set -e
+        export AGENT_ID="$(git log -1 --format=%B | sed -n 's/^Cursor-Agent-Id: *//p' | head -1)"
+        if [ -f /tmp/ci-failure.log ]; then
+          CI_FAILURE_LOG="$(cat /tmp/ci-failure.log)"
+          export CI_FAILURE_LOG
+        fi
+        python3 - <<'PY'
+        import json, os, sys, urllib.error, urllib.request
+        payload = {
+            "source": "github",
+            "repository": os.environ["GITHUB_REPOSITORY"],
+            "commitSha": os.environ["GITHUB_SHA"],
+            "branch": os.environ.get("GITHUB_REF_NAME") or None,
+            "workflowName": os.environ.get("GITHUB_WORKFLOW") or None,
+            "buildUrl": f"{os.environ.get('GITHUB_SERVER_URL','https://github.com')}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ.get('GITHUB_RUN_ID','')}",
+            "conclusion": "failure",
+            "agentId": os.environ.get("AGENT_ID") or None,
+            "errorSummary": os.environ.get("CI_FAILURE_SUMMARY") or None,
+            "errorLog": os.environ.get("CI_FAILURE_LOG") or None,
+        }
+        data = json.dumps({k: v for k, v in payload.items() if v}).encode()
+        req = urllib.request.Request(
+            os.environ["WEBHOOK_URL"],
+            data=data,
+            headers={
+                "Content-Type": "application/json",
+                "X-CI-Webhook-Token": os.environ["WEBHOOK_TOKEN"],
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                print(resp.read().decode())
+        except urllib.error.HTTPError as err:
+            body = err.read().decode(errors="replace")
+            print(f"webhook HTTP {err.code}: {body}", file=sys.stderr)
+            if err.code in (409, 503):
+                print("treating agent-busy/duplicate as success for CI notify job")
+                sys.exit(0)
+            raise
+        PY

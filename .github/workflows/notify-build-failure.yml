@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: AlgoAITech/meta-repo/.github/actions/notify-ci-failure@master
+      - uses: ./.github/actions/notify-ci-failure
         with:
           webhook-url: ${{ secrets.CI_FAILURE_WEBHOOK_URL }}
           webhook-token: ${{ secrets.CI_FAILURE_WEBHOOK_TOKEN }}
