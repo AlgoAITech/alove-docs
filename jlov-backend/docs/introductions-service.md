@@ -74,7 +74,7 @@ After a new introduction is persisted and reaches a “raw suggestion” state (
   - model: `SettingName.matchAdvisorOpenAIModel` -> `SettingName.aiModel` -> `gpt-4o-mini`
   - apiKey: `OPENAI_API_KEY` env when no agent `apiKey` exists
 - **Required**: `extra.prompt` on the `match-advisor` agent (brand-specific or brand `0`); the Lambda returns **503** if it is missing.
-- **Context payload** (stored on `llm_match_advisor.context`): profile snapshots, `declineResponsesInitiator` / `declineResponsesResponder`, `introductionStatusHistory`, algorithm scores, and related ids. (Planned doc items such as prior-pair history may be added in a later change.)
+- **Output** (saved on `introductions.llm_match_advisor`): `initiatorPitch`, `responderPitch`, and `hardContradictions` (short bullet lines of hard factual mismatches; empty array when none). Legacy fields (`score`, `matchmakerOpinion`, `scoreReasons`) are no longer written. The **system prompt** on the `match-advisor` agent must request this JSON shape only.
 - **Secrets**:
   - `general_codes.extra.apiKey` is expected encrypted at rest (`enc:v1:...`) and decrypted only at runtime.
   - decryption key source: `GENERAL_CODES_ENCRYPTION_KEY` (preferred) or `JWT_SECRET_KEY` fallback.
