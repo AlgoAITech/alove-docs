@@ -395,6 +395,38 @@ For **BOEmails** events `customerSupportTicketAssigned` and `customerSupportGues
   - `401` - Unauthorized
   - `404` - Profile not found
   - `500` - Server error
+- **Side effect - AI predictor descriptions**: on both the cached and the computed path the handler also calls
+  `ensurePredictorDescriptionsAiStored` (`src/functions/private/generatePredictorDescriptionsAi.ts`), wrapped in
+  `try/catch` so a failure never affects the response. It is a no-op when the descriptions already exist, when the
+  profile has no `brand_id`, when the brand has no active `predictor-descriptions` agent
+  (`general_codes`, `type = agent`), or when the profile has no predictor scale answers. Otherwise it calls the
+  brand's OpenAI agent and stores two `profile_external_info` rows,
+  `source = predictorDescriptionsAi`: `predictorDescriptionsUser` (member-facing, in the profile's language) and
+  `predictorDescriptionsAdminEn` (English, for admin/BO tooling).
+
+##### Context sent to the `predictor-descriptions` agent
+
+The user message is a single JSON object. Its shape matters because the agent's prompt is written against it:
+
+| Field | Source | Why |
+|-------|--------|-----|
+| `userLanguage` | `profile.settings.language`, else `Accept-Language`, else `en` | Language of the member-facing text |
+| `questionnaire[].questionId` / `namedId` / `questionText` | `question` + `translations` (question language, English fallback) | The predictor items themselves |
+| `questionnaire[].responseType` / `response` | latest `profile_responses` row per `batch_content_id` | The member's raw scale answers |
+| `questionnaire[].isDealBreaker` | `question.is_deal_breaker` | Lets the model weight deal-breaker items differently from ordinary ones |
+| `questionnaire[].axis` | `general_codes.name` for `question.question_category_id` (`type = questionCategory`) | Names the axis an item scores (anxiety, avoidance, ...) instead of a raw category id |
+| `labelMatrix[]` | `general_codes.extra.labelCalculation` on `type = factor` rows, via `loadPredictorLabelMatrix(brandId)` | The same ceiling bands BO uses to derive attachment-style labels |
+
+`labelMatrix` rows are `{ factor, axis1, axis2, bands: [{ label, axis1_min, axis1_max, axis2_min, axis2_max }] }`.
+They are built with the **same** helpers (`parseFactorLabelCalculation`, `predictorCategoryPairByFactor`) that
+`predictorsCalcFromResponses.ts` uses to compute stored factor labels, so the narrative the AI writes and the
+label BO shows are derived from one source of truth. Without it the model had to guess thresholds from raw
+scores and would read a mid-scale answer (e.g. 3.5 out of 7) as strongly indicative of an axis even when the
+brand's configured bands say it is not. Axis names are resolved to `general_codes.name`, never raw ids -
+edit the bands in BO (predictor relations / factor label calculation) and the AI context follows automatically.
+
+Stored descriptions can be cleared and regenerated from the backoffice
+(`regeneratePredictorDescriptionsAi`), which deletes the two rows and re-triggers `GET /predictor/{profile_id}`.
 
 #### policyAttribute
 **Purpose**: Handles policy-related attribute changes
