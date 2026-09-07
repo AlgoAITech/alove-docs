@@ -500,6 +500,7 @@ Stored descriptions can be cleared and regenerated from the backoffice
 - **CORS**: true
 - **Private**: true
 - **Authentication**: Required (Cognito User Pools)
+- **Also runs on**: `cron(0 6 * * ? *)` (daily, all active rules across all active brands)
 - **Parameters**:
   - `pathParameters.ruleId` - Tag rule ID to process
 - **Returns**:
@@ -508,6 +509,13 @@ Stored descriptions can be cleared and regenerated from the backoffice
   - `401` - Unauthorized
   - `404` - Rule not found
   - `500` - Server error
+- **Dynamic (SQL) rules**: a rule with `tag_rules.dynamic_config->>'rawQuery'` set skips the legacy
+  per-condition BigQuery path and instead runs `runDynamicRule()` — re-validates the stored SQL
+  (`assertSelectOnly`), checks it against the human-gate hash (`dynamic_config.queryHash`, set by
+  the backoffice "Validate & Preview" action) and skips with `dynamic_config.lastError` on any
+  mismatch, then executes via the read-only `tag_rule_reader` Postgres role or a dry-run-budgeted
+  BigQuery job against `events.profile_events_grouped` only. See
+  `docs/dynamic-tag-rules-plan.md` in the meta-repo for the full design.
 
 #### processStaleAgePreferenceBump
 **Purpose**: Daily job that increases the **upper bound** of partner age range answers when the member’s latest questionnaire answer for that step is older than one year. Keeps matching profiles aligned without requiring the user to reopen settings.

@@ -70,5 +70,12 @@ CREATE TABLE public.tag_rules (
     created character varying DEFAULT now() NOT NULL,
     updated character varying DEFAULT now(),
     brand_id smallint NOT NULL,
-    key character varying NOT NULL
+    key character varying NOT NULL,
+    profile_statuses jsonb NOT NULL,
+    invert boolean,
+    operator character varying NOT NULL,
+    -- Dynamic (AI-generated/admin-authored SQL) rule config + run state; a rule is dynamic
+    -- when dynamic_config->>'rawQuery' is present, otherwise the legacy `condition` column
+    -- drives it. See docs/dynamic-tag-rules-plan.md in the meta-repo.
+    dynamic_config jsonb
 ); 
