@@ -320,11 +320,25 @@ The service uses the following environment variables:
 - **Multi-language Support**: Support for multiple languages
 - **Sentiment Analysis**: Understanding user sentiment and emotions
 
-### Message Generation
-- **Conversation Starters**: AI-generated conversation openers
-- **Response Suggestions**: Intelligent response recommendations
-- **Ice Breakers**: Creative ice breaker messages
-- **Follow-up Messages**: Contextual follow-up suggestions
+### AI-Driven Questionnaire Content
+
+#### Question-level follow-up (`QuestionType.AiConversationalFollowUp`)
+- Handled in `continueBatch.handleResponse` → `aiConversationFollowUp.maybeHandleAiConversationalFollowUp` (`src/functions/aiConversationFollowUp.ts`)
+- Triggered when the answered question's `question_type = AiConversationalFollowUp` and `response_type = Text`
+- `question.response_settings`:
+  - `aiConversationAgentId` (required) - `general_codes` id (`type = "agent"`), resolved via `resolveAgentFromGeneralCodeId`
+  - `aiConversationInstructions` (optional) - extra instructions layered on top of the agent's base prompt
+  - `aiConversationContextQuestionIds` (optional) - ids of earlier questions in the same batch whose answers are included as prior Q&A context
+- Sends the main question text, latest answer, conversation-so-far, and prior Q&A to the agent; expects `{"satisfied": true|false, "follow_up_question": "..."}`. A follow-up `LoraMessage` (type `Question`) is saved only when `satisfied = false` and a non-empty `follow_up_question` is returned; batch progression is skipped for that turn when a follow-up is asked.
+
+#### Batch-content-level message (`BatchContentType.AiMessage`)
+- Handled in `continueBatch.continueBatch` (`src/functions/continueBatch.ts`) → `aiBatchMessage.maybeGetAiBatchMessageText` (`src/functions/aiBatchMessage.ts`)
+- A `batch_content` row with `content_type_id = AiMessage` has no static `content_txt_id` — its message text is decided at runtime by an agent instead.
+- `batch_content.vis_settings`:
+  - `aiAgentId` (required) - `general_codes` id (`type = "agent"`)
+  - `aiInstructions` (optional) - special instructions about the specific expected message
+- Context sent to the agent: the whole batch's message history so far (non-hidden `LoraMessage` rows for the current `batch_assignment_id`) plus "parsed profile data" — free-text Q&A answers merged with admin insights, and `attributes_values` — the same shape `calc-ai-attributes` (`profile-service`) builds, via the shared `buildParsedProfileContext` (`infra-lib/src/facades/profileContextFacade.ts`).
+- Expects `{"show": true|false, "text": "..."}`. A `LoraMessage` (type `Text`, `content.aiGenerated = true`) is saved only when `show = true` and `text` is non-empty — a single message, no follow-up; batch progression always continues to the next content item.
 
 ## Security Features
 

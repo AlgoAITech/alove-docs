@@ -192,6 +192,17 @@ The application uses a **brand-based multi-tenant architecture**:
 **Parameters**:
 - `id`: Profile ID
 
+#### Profile status lifecycle: DNFQ → PENDING auto-promotion
+
+`ProfileStatus` (`src/entities/profile/ProfileStatus.ts`) includes `DNFQ = 7` ("Did Not Finish Questionnaire") and `PENDING = 6`. A matchmaker-added single ("+ New Single") is created directly in `DNFQ` (`ProfileCreateService.createMatchmakerSingle`) until every attribute marked `settings.mmRequired: true` for the profile's brand has a value — the same "every tab is green" condition `bo_mobile` computes client-side.
+
+Each call to `PUT /api/profiles/:id` (`ProfileAttributesUpdateService.updateProfileAttributes`) re-checks this after saving and, once satisfied, promotes the profile straight to `PENDING`. Two things matter for correctly deciding "has a value":
+
+- **`preValidation`-hidden attributes are excluded from the requirement.** An `mmRequired` attribute whose `preValidation` currently evaluates to hidden for this profile (e.g. a "children" question that only applies to divorced/widowed profiles) doesn't block promotion — checked the same way `profile-import.service.ts` already did (`checkPreValidationAsync`, `src/utils/preValidate.ts`).
+- **Encrypted sensitive attributes count as filled by their wrapper shape, not as an array.** `firstName`, `lastName`, `email`, `phone_number`, and other sensitive attributes are stored as an encrypted `{ __enc: 'v1', ciphertext, ... }` object once set (never a plain array) — `areAllMmRequiredAttributesFilled` (`src/utils/mm-required-attributes-complete.util.ts`) treats that wrapper shape itself as "filled", since `PiiEncryptionService.applyAttributeValue` only ever writes it for a non-empty value.
+
+Promotion only runs on the attribute-update path above — it is not re-evaluated by CSV import updates to an already-existing profile (`ProfileImportService` only sets `PENDING` directly when *creating* a new profile row, and otherwise changes `statusId` solely from an explicitly-mapped CSV status column).
+
 ### Content Management Endpoints
 
 #### GET `/api/contents`
