@@ -305,7 +305,8 @@ Translation supports the same `extra` shape:
 ```
 **Notes**:
 - This is an async invoke (`InvocationType: Event`) and returns after queueing.
-- Function name can be overridden by `AUTO_UPDATE_PROFILE_FUNCTION_NAME` or `PROFILE_SERVICE_AUTO_UPDATE_PROFILE_FUNCTION_NAME`.
+- Function name uses `LAMBDA_STAGE` (jlov serverless stage: `alove-dev`, `mujual-staging`, `mujual-prod` in `globals/.env.<stage>`), else derives from `STAGE`.
+- Override entirely with `AUTO_UPDATE_PROFILE_FUNCTION_NAME` or `PROFILE_SERVICE_AUTO_UPDATE_PROFILE_FUNCTION_NAME`.
 
 ### Screen Management Endpoints
 
