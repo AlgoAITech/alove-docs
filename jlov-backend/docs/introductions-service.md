@@ -63,7 +63,14 @@ When an introduction is created in `PENDING` under `noTolerance`, `introductions
 After a new introduction is persisted and reaches a “raw suggestion” state (`RAW`, `PENDING`, or `AVAILABILITY_CHECK` after `publishNewIntro`), the service **asynchronously** invokes the private `computeMatchAdvisor` endpoint via the user-events queue (`TechnicalEvent.LAMBDA_CALL`), so the HTTP path to suggestions returns without waiting for OpenAI.
 
 #### computeMatchAdvisor
-**Purpose**: Builds a translated snapshot of both profiles (labels + values via `translations`), loads decline-reason questionnaire answers for both sides (batch content IDs from setting `declineReasonQuestions`, same comma-separated list as backoffice `DeclineReasonQuestions`). Each decline row is passed to the model with `questionText` and `answeredWith` (question copy and resolved answer text via translations, not raw choice ids). Includes introduction status history, calls OpenAI, and saves the result on `introductions.llm_match_advisor` (JSONB). The **system prompt** must be configured on the `match-advisor` agent (`general_codes.extra.prompt`); there is no in-repo default prompt file.
+**Purpose**: Builds the match-advisor context for the pair, calls OpenAI once (one retry), applies code checks to the reply, and saves the result on `introductions.llm_match_advisor` (JSONB). The same context, LLM call and checks run for pairs that are not introductions yet in the precheck cron (`aiPairAssessmentPrecheck`, every 6 hours), which caches results in `public.ai_pair_assessment` for the matcher's AI blend (#84389/#84390). The **system prompt** must be configured on the `match-advisor` agent (`general_codes.extra.prompt`); there is no in-repo default (the current draft is `meta-repo/scripts/match_advisor_prompt_update/match_advisor_prompt_v3.md`).
+- **Context** (`infra-lib/src/facades/matchAdvisorContextFacade.ts`), per person (A = initiator, B = responder):
+  - `initiator` / `responder`: `{ bio, preferences, aiAnalysisPref, freeText[] }`. Labels and values are translated; `freeText` holds answers to Text questions as `{ label, group: "bio" | "pref", text }` (jlov PR #2475 — before it, bio and pref attributes were one map keyed by label, so a shared label overwrote one of them).
+  - `declinesInitiator` / `declinesResponder`: up to 5 recent decline questionnaires (`batch.extra.declineBatch`) in the member's own words, each with the declined match's bio and free text (`memberDeclinesFacade.ts`, #2475).
+  - `learningSummaryForA/B` (#84397), `predictorAnswers*`, `dealBreakerMeta*`, `compatibilityTopics` (`aiCompatibilityTopic` rows, #84382).
+  - Algorithm scores are not sent.
+  - Contact data is never sent: answers whose question `response_settings.inputType` is email/phone are dropped, and e-mails / phone numbers inside values are masked (`infra-lib/src/llmContactRedaction.ts`). The decline and match-end investigators get the same redaction.
+  - `computeMatchAdvisorInputHash` hashes the context (without the introduction id for precheck) and is the cache key in `ai_pair_assessment`.
 - **Handler**: `src/functions/private/computeMatchAdvisor.computeMatchAdvisorHandler`
 - **Path**: `/private/introductions/{introductionId}/match-advisor`
 - **Method**: POST
@@ -74,7 +81,15 @@ After a new introduction is persisted and reaches a “raw suggestion” state (
   - model: `SettingName.matchAdvisorOpenAIModel` -> `SettingName.aiModel` -> `gpt-4o-mini`
   - apiKey: `OPENAI_API_KEY` env when no agent `apiKey` exists
 - **Required**: `extra.prompt` on the `match-advisor` agent (brand-specific or brand `0`); the Lambda returns **503** if it is missing.
-- **Output** (saved on `introductions.llm_match_advisor`): `initiatorPitch`, `responderPitch`, and `hardContradictions` (short bullet lines of hard factual mismatches; empty array when none). Legacy fields (`score`, `matchmakerOpinion`, `scoreReasons`) are no longer written. The **system prompt** on the `match-advisor` agent must request this JSON shape only.
+- **Output** (saved on `introductions.llm_match_advisor`): `initiatorPitch`, `responderPitch`, `hardContradictions`, and `assessment` (#84382):
+  - `forA` / `forB`: a 1–5 score and a reason per compatibility topic, combined in code into `rawScoreForA/B` (0–100) and calibrated into `scoreForA/B` (#84383); `dealBreakerConflicts`, `missingInfo`, `staffNarrative`, `status`, `modelId`, `promptVersion`, `inputHash`, `partWeights`.
+  - `freeText` (#2475, only when the prompt returns it): per direction the things the person asks for (Looking for and decline reasons) with the partner's own quoted words or `null`, `shown` / `of`, a `rating` and `points` computed in code; `conflicts` (one side's free text ruling out the other side's field, `clear` or `check`); `checks`; `pitchEvidence` (`answers` = receiver's Looking-for words, `backedBy` = described person's words); `exclusion`; `guard.droppedQuotes` and `guard.pitchBlocked`.
+- **Code checks after the reply** (`applyMatchAdvisorGuards`, #2475):
+  - Every quote must appear in what that person wrote (whole words, "…" allowed); others are dropped and counted.
+  - The free-text rating comes from the count (`aiFreeTextRatingThresholds`, default `[0.8,0.6,0.4,0.2]`). A topic with key `freeTextFit`, if configured, is scored from that count, not by the model.
+  - `aiFreeTextExclusionMode`: `flag` (default) adds a hard-contradiction line per clear free-text exclusion, so the introduction stays PENDING; `exclude` also sets that direction's AI score to 0; `off` keeps evidence only.
+  - Member pitches mentioning a decline, Baal Teshuva / convert background or finances are blanked; the reason is stored in `freeText.guard.pitchBlocked`.
+- **Precheck cache rows** (`ai_pair_assessment`): `profile_a` / `profile_b` are sorted ids; `raw_payload` holds the guarded reply from the initiator's side plus `initiatorProfileId` / `responderProfileId` for orientation. Raw (uncalibrated) scores.
 - **Secrets**:
   - `general_codes.extra.apiKey` is expected encrypted at rest (`enc:v1:...`) and decrypted only at runtime.
   - decryption key source: `GENERAL_CODES_ENCRYPTION_KEY` (preferred) or `JWT_SECRET_KEY` fallback.
