@@ -210,7 +210,7 @@ Promotion only runs on the attribute-update path above — it is not re-evaluate
 **Contact data is never exported**: attributes whose question `responseSettings.inputType` is email / phone are dropped, and e-mails / phone numbers inside any value are masked (`src/utils/llm-contact-redaction.util.ts`, same rule as jlov-backend `infra-lib/src/llmContactRedaction.ts`).
 
 #### GET `/api/profiles/:profileId/candidate-ranking`
-**Purpose**: Ranks the member's `match_scores` candidates (up to 60) from the match advisor's free-text evidence in `public.ai_pair_assessment.raw_payload.freeText` (written by jlov-backend's precheck, see `jlov-backend/docs/introductions-service.md` → computeMatchAdvisor). Algorithm scores are not used. Pure logic: `src/utils/candidate-ranking.util.ts` (PR #1331).
+**Purpose**: Ranks the top 60 of the member's match-scores list — the same order as `GET /api/profiles/:profileId/match-scores` (deal-breaker counts ASC, tie breaker DESC, initiator / responder bio score DESC; `MATCH_SCORES_LIST_ORDER`, PR #1332) — from the match advisor's free-text evidence in `public.ai_pair_assessment.raw_payload.freeText` (written by jlov-backend's precheck, see `jlov-backend/docs/introductions-service.md` → computeMatchAdvisor). Algorithm scores are not used. Pure logic: `src/utils/candidate-ranking.util.ts` (PR #1331).
 **Access**: `ViewUserMatchScores` (2.16). 400 for an invalid id or a member outside the brand.
 **Method** (from the ZUUG hand-ranking, "Match Suggester — Draft v3.3"):
 - Each direction has 0–4 points from how many of the person's wants (Looking for + decline reasons) the other person's own words show; ratings are computed in jlov-backend, not by the model.
