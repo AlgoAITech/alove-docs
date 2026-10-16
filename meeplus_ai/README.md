@@ -120,6 +120,30 @@ The service uses a sophisticated scoring system that considers:
 - **Testing**: pytest with coverage
 - **Packaging**: setuptools for distribution
 
+### 4. Jev AI Attributes Service (`jev-ai-attributes-service/`)
+
+**Purpose**: scores profile free text with TypeSafe **Jev** (System One). Details and commands: the service's own
+`README.md`.
+
+- **AI traits** (`calcJevAiAttributes`): `aiAnalysis` traits and `aiAnalysisPref` partner preferences (1–9) from
+  free text and decline answers.
+- **Decline fill** (`scripts/decline_fill.py`): turns decline answers into values on the Forbidden attributes
+  declared with `settings.aiFill` / `settings.aiOnly`. Dry-run by default; `--apply` writes over direct Postgres
+  only, with a change log.
+- **Match checks** (`scripts/match_checks.py`, dry-run only, Oct 2026): before a suggestion is sent, one Jev call
+  asks a fixed set of yes/no questions about the pair. A yes at or above its threshold, or a code check (the pair
+  was declined before, an empty About me), flags it for an admin. The questions are `general_codes` rows of type
+  `matchCheck`, so admins add and tune them on the General Codes page:
+
+  | Field | Meaning |
+  |---|---|
+  | `name` | The question, written about "the member" and "the candidate" |
+  | `extra.threshold` | Yes/no score that flags (default 0.7) |
+  | `extra.bothWays` | Also ask it with "member" and "candidate" swapped (default true) |
+
+  Brand rows come first, then brand 0, then a built-in set. Plan and test cases: meta-repo
+  `docs/ai-compatibility/steps/5-checks.md`.
+
 ## Data Flow
 
 ```
