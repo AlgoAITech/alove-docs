@@ -140,6 +140,7 @@ The service uses a sophisticated scoring system that considers:
   | `name` | The question, written about "the member" and "the candidate" |
   | `extra.threshold` | Yes/no score that flags (default 0.7) |
   | `extra.bothWays` | Also ask it with "member" and "candidate" swapped (default true) |
+  | `extra.scope` | `pair` (default) or `member`: asked once per member; a yes is a note on that member's pairs, never a hold |
 
   Brand rows come first, then brand 0, then a built-in set. Plan and test cases: meta-repo
   `docs/ai-compatibility/steps/5-checks.md`.
