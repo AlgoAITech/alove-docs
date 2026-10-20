@@ -37,7 +37,7 @@ CREATE TABLE public.question_responses (
     pre_validation jsonb,
     attibute_id bigint DEFAULT '-1'::integer,
     column5 integer,
-    additional_ids character varying,
+    additional_ids character varying, -- DEPRECATED: legacy, unused. Choice identity is txt_id; links between answers live in question_responses_automatic.
     type smallint,
     action jsonb
 );
