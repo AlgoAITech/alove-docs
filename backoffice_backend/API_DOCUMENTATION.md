@@ -206,7 +206,7 @@ Promotion only runs on the attribute-update path above — it is not re-evaluate
 #### POST `/api/profiles/:profileId/match-scores/llm-export`, POST `/api/profiles/llm-context`, GET `/api/introductions/:id/llm-context`
 **Purpose**: JSON a matchmaker downloads or copies to review candidates with an outside AI assistant ("Download candidates" on Potential matches, "Copy both sides as context" on an introduction). Service: `src/services/match-scores-llm-export.service.ts`.
 **Access**: `ViewUserMatchScores` (2.16); the introduction route uses 2.11.
-**Per profile**: `profileStatus`, `bio` and `preferences` (Bio / Pref attributes, translated), `priorDeclines` (decline-investigator summaries), and `declines` (backoffice_backend PR #1331): up to 5 recent decline questionnaires in the member's own words, each with the declined partner's bio.
+**Per profile**: `profileStatus`, `bio` and `preferences` (Bio / Pref attributes, translated), `priorDeclines` (decline-investigator summaries), and `declines` (backoffice_backend PR #1331): every completed decline questionnaire in the member's own words (newest first), each with the declined partner's bio.
 **Contact data is never exported**: attributes whose question `responseSettings.inputType` is email / phone are dropped, and e-mails / phone numbers inside any value are masked (`src/utils/llm-contact-redaction.util.ts`, same rule as jlov-backend `infra-lib/src/llmContactRedaction.ts`). Other sensitive Bio/Pref fields (names, income, etc.) are decrypted for the export like the backoffice profile view; only contact details are redacted.
 
 #### POST `/api/introductions/llm-context`
